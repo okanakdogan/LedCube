@@ -1,39 +1,20 @@
-/*
-The program will show how to use the
-basics of the VideoDriver, the GUIEnvironment and the
-SceneManager.
-
-To use the engine, we will have to include the header file
-irrlicht.h, which can be found in the Irrlicht Engine SDK
-directory \include.
-*/
+#include <iostream>
 #include <irrlicht.h>
+#include <vector>
 
-/*
-In the Irrlicht Engine, everything can be found in the namespace
-'irr'. So if you want to use a class of the engine, you have to
-write an irr:: before the name of the class. For example to use
-the IrrlichtDevice write: irr::IrrlichtDevice. To get rid of the
-irr:: in front of the name of every class, we tell the compiler
-that we use that namespace from now on, and we will not have to
-write that 'irr::'.
-*/
+
+
 using namespace irr;
 
-/*
-There are 5 sub namespaces in the Irrlicht Engine. Take a look
-at them, you can read a detailed description of them in the
-documentation by clicking on the top menu item 'Namespace List'
-or using this link: http://irrlicht.sourceforge.net/docu/namespaces.html.
-Like the irr Namespace, we do not want these 5 sub namespaces now,
-to keep this example simple. Hence we tell the compiler again
-that we do not want always to write their names:
-*/
 using namespace core;
 using namespace scene;
 using namespace video;
 using namespace io;
 using namespace gui;
+
+using namespace std;
+
+char* chartobin ( unsigned char c );
 
 enum
 {
@@ -42,55 +23,205 @@ enum
     GUI_ID_FILE_OPEN_BUTTON,
     GUI_ID_TRANSPARENCY_SCROLL_BAR
 };
-/*
-This is the main method. We can use void main() on every platform.
-On Windows platforms, we could also use the WinMain method
-if we would want to get rid of the console window, which pops up when
-starting a program with main(), but to keep this example simple,
-we use main().
-*/
+
+class LedCubeData{
+public:
+    char m_data[8][8];
+
+    char* chartobin ( unsigned char c )
+    {
+        static char bin[CHAR_BIT + 1] = { 0 };
+        int i;
+
+        for ( i = CHAR_BIT - 1; i >= 0; i-- )
+        {
+            bin[i] = (c % 2) + '0';
+            c /= 2;
+        }
+
+        return bin;
+    }
+
+
+    LedCubeData(){}
+    void setLed(char l, char r,char c){
+        m_data[l][r]=m_data[l][r] | (char)1<<c;
+    }
+    void clearLed(char l, char r,char c){
+        m_data[l][r]=m_data[l][r] & ~( (char)1<<c);
+    }
+    void changeAllto(char setValue){
+
+
+        for(char i=0;i<8;i++)
+            for(char j=0;j<8;++j)
+                m_data[i][j]=setValue;
+    }
+    void print(){
+        for(char i=0;i<8;i++)
+            for(char j=0;j<8;++j)
+                cout<<chartobin(m_data[i][j])<<endl;
+    }
+
+};
+
+class CubeObject{
+    private:
+    vector<ISceneNode *>cubes;
+    LedCubeData m_data;
+    IVideoDriver* m_driver;
+    const io::path path_on="../../media/green.jpg";
+    const io::path path_off="../../media/black.jpg";
+
+    vector<ISceneNode*> createOneRowCube(ISceneManager *smgr,core::vector3df position,float space){
+    vector<ISceneNode*> row;
+    ISceneNode* node;
+    for(int i=0;i<8;i++){
+        position.X+=space;
+        row.push_back(node=smgr->addCubeSceneNode(1.0f,0,0,position));
+        node->setMaterialFlag(EMF_LIGHTING,true);
+    }
+    return row;
+}
+
+vector<ISceneNode*> createOneFaceCube(ISceneManager *smgr,core::vector3df position,float space){
+    vector<ISceneNode*> face;
+    for(int i=0;i<8;i++){
+       position.Y-=space;
+       vector<ISceneNode*> result=createOneRowCube(smgr,position,space);
+       face.insert(face.end(),result.begin(),result.end());
+    }
+    return face;
+}
+
+vector<ISceneNode*> createLedCube(ISceneManager *smgr,core::vector3df position,float space){
+
+    vector<ISceneNode*> ledCube;
+    for(int i=0;i<8;i++){
+       position.Z+=space;
+       vector<ISceneNode*> result=createOneFaceCube(smgr,position,space);
+       ledCube.insert(ledCube.end(),result.begin(),result.end());
+    }
+    return ledCube;
+
+}
+public:
+CubeObject(ISceneManager *smgr,IVideoDriver* driver,core::vector3df position,float space){
+        cubes=createLedCube(smgr,position,space);
+        m_driver=driver;
+        m_data.changeAllto(0x01);
+    }
+
+    void setLedCubeTexture(IVideoDriver* driver,const io::path path){
+        for(int i=0;i<512;i++)
+            cubes.at(i)->setMaterialTexture( 0, driver->getTexture(path) );
+    }
+
+    void switchLed(core::vector3di pos,IVideoDriver* driver,const io::path path){
+
+        cubes.at(pos.X*64+pos.Y*8+pos.Z)->setMaterialTexture( 0, driver->getTexture(path));
+
+    }
+    void switchRow(char layer,char row){
+        char * arr=m_data.chartobin(m_data.m_data[layer][row]);
+
+        for(char i=0;i<8;++i){
+            cubes.at(layer*64+row*8+i)->setMaterialTexture( 0, m_driver->getTexture(arr[i]=='1'?path_on:path_off));
+        }
+
+    }
+
+    LedCubeData getData(){
+        return m_data;
+    }
+    void loadData(){
+        cout<<"load data"<<endl;
+        for(char i=0;i<8;i++)
+            for(char j=0;j<8;j++){
+                //bir satırı demo kupe aktar
+                switchRow(i,j);
+        }
+    }
+};
+
+
+
+
+
+class MyEventReceiver : public IEventReceiver
+{
+public:
+    // We'll create a struct to record info on the mouse state
+    struct SMouseState
+    {
+        core::position2di Position;
+        bool LeftButtonDown;
+        SMouseState() : LeftButtonDown(false) { }
+    } MouseState;
+
+    // This is the one method that we have to implement
+    virtual bool OnEvent(const SEvent& event)
+    {
+        // Remember the mouse state
+        if (event.EventType == irr::EET_MOUSE_INPUT_EVENT)
+        {
+            switch(event.MouseInput.Event)
+            {
+            case EMIE_LMOUSE_PRESSED_DOWN:
+                MouseState.LeftButtonDown = true;
+                std::cout<<"click"<<std::endl;
+                break;
+
+            case EMIE_LMOUSE_LEFT_UP:
+                MouseState.LeftButtonDown = false;
+                break;
+
+            case EMIE_MOUSE_MOVED:
+                MouseState.Position.X = event.MouseInput.X;
+                MouseState.Position.Y = event.MouseInput.Y;
+                break;
+
+            default:
+                // We won't use the wheel
+                break;
+            }
+        }
+
+        return false;
+    }
+
+    const SMouseState & GetMouseState(void) const
+    {
+        return MouseState;
+    }
+
+
+    MyEventReceiver()
+    {
+    }
+
+    };
+
+vector<ISceneNode*> createOneRowCube(ISceneManager *smgr,core::vector3df position,float space);
+vector<ISceneNode*> createOneFaceCube(ISceneManager *smgr,core::vector3df position,float space);
+vector<ISceneNode*> createLedCube(ISceneManager *smgr,core::vector3df position,float space);
+void setLedCubeTexture(const vector<ISceneNode*> & r,IVideoDriver* driver,const io::path path);
+void switchLed(const vector<ISceneNode*> & r,core::vector3di pos,IVideoDriver* driver,const io::path path);
 int main(int argc, char** argv)
 {
-    /*
-    The most important function of the engine is the 'createDevice'
-    function. The Irrlicht Device can be created with it, which is the
-    root object for doing everything with the engine.
-    createDevice() has 7 paramters:
-    deviceType: Type of the device. This can currently be the Null-device,
-       the Software device, DirectX8, DirectX9, or OpenGL. In this example we use
-       EDT_SOFTWARE, but to try out, you might want to change it to
-       EDT_NULL, EDT_DIRECTX8 , EDT_DIRECTX9, or EDT_OPENGL.
-    windowSize: Size of the Window or FullscreenMode to be created. In this
-       example we use 640x480.
-    bits: Amount of bits per pixel when in fullscreen mode. This should
-       be 16 or 32. This parameter is ignored when running in windowed mode.
-    fullscreen: Specifies if we want the device to run in fullscreen mode
-       or not.
-    stencilbuffer: Specifies if we want to use the stencil buffer for drawing shadows.
-    vsync: Specifies if we want to have vsync enabled, this is only useful in fullscreen
-      mode.
-    eventReceiver: An object to receive events. We do not want to use this
-       parameter here, and set it to 0.
-    */
+
     //core::dimension2d< u32 > windowDim(640, 480);
+    MyEventReceiver receiver;
+
     core::dimension2d< u32 > windowDim(1024, 640);
     IrrlichtDevice *device =
         createDevice(EDT_SOFTWARE, windowDim, 16,
-            false, false, false, 0);
+            false, false, false, &receiver);
 
-    /*
-    Set the caption of the window to some nice text. Note that there is
-    a 'L' in front of the string. The Irrlicht Engine uses wide character
-    strings when displaying text.
-    */
+
     device->setWindowCaption(L"Hello World! - Irrlicht Engine Demo");
 
-    /*
-    Get a pointer to the video driver, the SceneManager and the
-    graphical user interface environment, so that
-    we do not always have to write device->getVideoDriver(),
-    device->getSceneManager() and device->getGUIEnvironment().
-    */
+
     IVideoDriver* driver = device->getVideoDriver();
     ISceneManager* smgr = device->getSceneManager();
     IGUIEnvironment* guienv = device->getGUIEnvironment();
@@ -101,46 +232,24 @@ int main(int argc, char** argv)
     guienv->addStaticText(L"Hello World! This is the Irrlicht Software renderer!",
         rect<int>(10,10,200,22), true);
 
-    /*
-    To display something interesting, we load a Quake 2 model
-    and display it. We only have to get the Mesh from the Scene
-    Manager (getMesh()) and add a SceneNode to display the mesh.
-    (addAnimatedMeshSceneNode()). Instead of writing the filename
-    sydney.md2, it would also be possible to load a Maya object file
-    (.obj), a complete Quake3 map (.bsp) or a Milshape file (.ms3d).
-    By the way, that cool Quake 2 model called sydney was modelled
-    by Brian Collins.
-    */
+
     //IAnimatedMesh* mesh = smgr->getMesh("../../led_base/led_base.obj");
     //IAnimatedMeshSceneNode* node = smgr->addAnimatedMeshSceneNode( mesh );
     //ISceneNode* node = smgr->addCubeSceneNode(10.0f,0,105);
     ISceneNode* node = smgr->addAnimatedMeshSceneNode( smgr->getMesh("../../media/led_base/led_base.obj") );
-    ISceneNode* node2 = smgr->addAnimatedMeshSceneNode( smgr->getMesh("../../media/led1/led1.obj") );
+    //ISceneNode* node2 = smgr->addAnimatedMeshSceneNode( smgr->getMesh("../../media/led1/led1.obj") );
     //ISceneNode* node = smgr->addAnimatedMeshSceneNode( smgr->getMesh("../../media/sydney.md2") );
-    /*
-    To let the mesh look a little bit nicer, we change its material a
-    little bit: We disable lighting because we do not have a dynamic light
-    in here, and the mesh would be totally black. Then we set the frame
-    loop, so that the animation is looped between the frames 0 and 310.
-    And at last, we apply a texture to the mesh. Without it the mesh
-    would be drawn using only a color.
-    */
+
+
     if (node)
     {
         node->setMaterialFlag(EMF_LIGHTING, false);
         node->setPosition(core::vector3d<f32>(0,0,0));
-        node->setScale(core::vector3d<f32>(1,1,1));
+        node->setScale(core::vector3d<f32>(2,2,2));
         //node->setFrameLoop(0, 310);
         //node->setMaterialTexture( 0, driver->getTexture("../../media/rockwall_height.bmp") );
     }
-    if (node2)
-    {
-        node2->setMaterialFlag(EMF_LIGHTING, false);
-        node2->setPosition(core::vector3d<f32>(-5,-50,10));
-        node2->setScale(core::vector3d<f32>(1,1,1));
-        //node->setFrameLoop(0, 310);
-        //node->setMaterialTexture( 0, driver->getTexture("../../media/rockwall_height.bmp") );
-    }
+
     rect<s32> tabcontrol(0,0,400,400);
 
 
@@ -167,15 +276,25 @@ int main(int argc, char** argv)
     To look at the mesh, we place a camera into 3d space at the position
     (0, 30, -40). The camera looks from there to (0,5,0).
     */
-    smgr->addCameraSceneNode(0, vector3df(10,30,40), vector3df(-13,-10,0));
+    scene::ICameraSceneNode * camera=smgr->addCameraSceneNode(0, vector3df(20,50,-60), vector3df(30,10,0));
     //scene::ICameraSceneNode* camera = smgr->addCameraSceneNodeFPS();
 
+    /*scene::ICameraSceneNode * camera = smgr->addCameraSceneNode();
+    camera->setPosition(core::vector3df(0, 0, -10));*/
     /*
     Ok, now we have set up the scene, lets draw everything:
     We run the device in a while() loop, until the device does not
     want to run any more. This would be when the user closed the window
     or pressed ALT+F4 in windows.
     */
+     u32 then = device->getTimer()->getTime();
+    const f32 MOVEMENT_SPEED = 5.f;
+    CubeObject cube(smgr,driver,core::vector3df(5,45,-10),4);
+    cube.setLedCubeTexture(driver,"../../media/black.jpg");
+    cube.switchLed(core::vector3di(1,0,7),driver,"../../media/green.jpg");
+
+
+    cube.loadData();
     while(device->run())
     {
         /*
@@ -185,10 +304,43 @@ int main(int argc, char** argv)
         GUI Environment draw their content. With the endScene() call
         everything is presented on the screen.
         */
-        driver->beginScene(true, true, SColor(0,96,96,96));
+        const u32 now = device->getTimer()->getTime();
+        const f32 frameDeltaTime = (f32)(now - then) / 1000.f; // Time in seconds
+        then = now;
 
+        core::vector3df nodePosition = node->getPosition();
+
+
+/*
+        // Create a ray through the mouse cursor.
+            core::line3df ray = smgr->getSceneCollisionManager()->getRayFromScreenCoordinates(
+                receiver.GetMouseState().Position, camera);
+
+            // And intersect the ray with a plane around the node facing towards the camera.
+            core::plane3df plane(nodePosition, core::vector3df(0, 0, -1));
+            core::vector3df mousePosition;
+            if(plane.getIntersectionWithLine(ray.start, ray.getVector(), mousePosition))
+            {
+                // We now have a mouse position in 3d space; move towards it.
+                core::vector3df toMousePosition(mousePosition - nodePosition);
+                const f32 availableMovement = MOVEMENT_SPEED * frameDeltaTime;
+
+                if(toMousePosition.getLength() <= availableMovement)
+                    nodePosition = mousePosition; // Jump to the final position
+                else
+                    nodePosition += toMousePosition.normalize() * availableMovement; // Move towards it
+            }
+            node->setPosition(nodePosition);
+
+        // Turn lighting on and off depending on whether the left mouse button is down.
+        node->setMaterialFlag(video::EMF_LIGHTING, receiver.GetMouseState().LeftButtonDown);
+*/
+
+
+        driver->beginScene(true, true, SColor(0,96,96,96));
         smgr->drawAll();
         guienv->drawAll();
+
 
         driver->endScene();
     }
@@ -207,4 +359,6 @@ int main(int argc, char** argv)
 
     return 0;
 }
+
+
 
