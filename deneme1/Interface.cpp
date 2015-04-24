@@ -1,11 +1,6 @@
 #include"Interface.h"
 
 
-#define MODEL_LOGO_CONE_PATH "media/cone.png"
-#define MODEL_LOGO_CUBE_PATH "media/cube.png"
-#define MODEL_LOGO_CYLINDER_PATH "../media/cylinder.png"
-
-
 Interface::Interface(IrrlichtDevice *device, IVideoDriver* driver){
 	/* creating locations */
 	l.CONE_IMAGE_LOCATION = recti(30, 0, 250, 130);

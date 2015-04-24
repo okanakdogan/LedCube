@@ -1,10 +1,11 @@
 # depslib dependency file v1.0
-1429877737 source:d:\okanprojectslaptop\codeblocks\ledcube\main.cpp
+1429889049 source:d:\okanprojectslaptop\codeblocks\ledcube\main.cpp
 	<iostream>
 	<vector>
 	<irrlicht.h>
 	"MyEventReceiver.h"
 	"Interface.h"
+	"LedCube.h"
 
 1352124854 d:\irrlicht\irrlicht-1.8.1\include\irrlicht.h
 	"IrrCompileConfig.h"
@@ -994,16 +995,16 @@
 	"matrix4.h"
 	"IVideoDriver.h"
 
-1429839224 d:\okanprojectslaptop\codeblocks\ledcube\deneme1\myeventreceiver.h
+1429879277 d:\okanprojectslaptop\codeblocks\ledcube\deneme1\myeventreceiver.h
 	"irrlicht.h"
 	"Interface.h"
 	"Objects.h"
 	<vector>
 
-1429779862 d:\okanprojectslaptop\codeblocks\ledcube\deneme1\interface.h
+1429884246 d:\okanprojectslaptop\codeblocks\ledcube\deneme1\interface.h
 	"irrlicht.h"
 
-1429834984 d:\okanprojectslaptop\codeblocks\ledcube\deneme1\objects.h
+1429879277 d:\okanprojectslaptop\codeblocks\ledcube\deneme1\objects.h
 	"irrlicht.h"
 
 1429877769 d:\okanprojectslaptop\codeblocks\ledcube\myeventreceiver.h
@@ -1018,12 +1019,17 @@
 1429877769 d:\okanprojectslaptop\codeblocks\ledcube\objects.h
 	<irrlicht.h>
 
-1429825728 source:d:\okanprojectslaptop\codeblocks\ledcube\deneme1\interface.cpp
+1429883184 source:d:\okanprojectslaptop\codeblocks\ledcube\deneme1\interface.cpp
 	"Interface.h"
 
-1429878104 source:d:\okanprojectslaptop\codeblocks\ledcube\deneme1\myeventreceiver.cpp
+1429879277 source:d:\okanprojectslaptop\codeblocks\ledcube\deneme1\myeventreceiver.cpp
 	"MyEventReceiver.h"
 
-1429837812 source:d:\okanprojectslaptop\codeblocks\ledcube\deneme1\objects.cpp
+1429888704 source:d:\okanprojectslaptop\codeblocks\ledcube\deneme1\objects.cpp
 	"Objects.h"
+
+1429888973 d:\okanprojectslaptop\codeblocks\ledcube\ledcube.h
+	<iostream>
+	<vector>
+	<irrlicht.h>
 

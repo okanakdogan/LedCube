@@ -28,6 +28,13 @@ bool Object::addAnObject(const wchar_t *filename){
 		if(node){
 			triangleSelector = device->getSceneManager()->createTriangleSelector(node);
 			node->setTriangleSelector(triangleSelector);
+
+			/*node scale --okan*/
+			/*
+			node->setScale(core::vector3df(0.1f,0.1f,0.1f));
+            node->setPosition(core::vector3df(25,30,-10));
+            */
+
 			return true;
 		}else{
 			return false;

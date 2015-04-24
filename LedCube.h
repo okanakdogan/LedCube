@@ -67,8 +67,8 @@ class CubeObject{
     vector<ISceneNode *>cubes;
     LedCubeData m_data;
     IVideoDriver* m_driver;
-    const io::path path_on="../../media/green.jpg";
-    const io::path path_off="../../media/lightgrey.jpg";
+    const io::path path_on="../media/green.jpg";
+    const io::path path_off="../media/lightgrey.jpg";
 
     vector<ISceneNode*> createOneRowCube(ISceneManager *smgr,core::vector3df position,float space){
     vector<ISceneNode*> row;
@@ -179,6 +179,39 @@ CubeObject(ISceneManager *smgr,IVideoDriver* driver,core::vector3df position,flo
 
         }
 
+    }
+
+    void checkSetCollisionObject(vector<Object> &objects){
+        ISceneNode* sph,*part;
+        int psize=objects.size();
+        //std::cout<<"psize="<<psize<<endl;
+        for(short i=0;i<512;++i){
+            sph=cubes.at(i);
+            int loc=0;
+            bool collision=false;
+
+            while(loc<psize){
+
+                /*collision check*/
+                part=objects.at(loc).node;
+
+                if((part->getPosition()-sph->getPosition()).getLength()<VBOX_SPHERE_RAD+0.1f/*part->getRadius()*/)
+                {
+
+                    switchLed(core::vector3di(i/64,(i%64)/8,((i%64)%8)),true);
+                    /*change data*/
+                    m_data.setLed(i/64,(i%64)/8,((i%64)%8));
+                    collision=true;
+                    //std::cout<<"collision"<<endl;
+                    break;
+                }
+
+                loc++;
+
+            }
+            if(collision==false)
+                switchLed(core::vector3di(i/64,(i%64)/8,((i%64)%8)),false);
+        }
     }
 };
 

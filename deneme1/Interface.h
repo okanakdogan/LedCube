@@ -10,6 +10,7 @@ using namespace io;
 using namespace gui;
 
 #define FULLSCREEN dimension2d<u32>(1366, 768)
+#define WINDOWED_1024 dimension2d<u32>(1024, 640)
 
 struct Locations{
 	recti CONE_IMAGE_LOCATION;
@@ -53,7 +54,7 @@ struct Locations{
 enum
 {
 	ROTATE_BUTTON_ID = 101,
-	MOVE_BUTTON_ID, 
+	MOVE_BUTTON_ID,
 	SCALE_BUTTON_ID,
 	CHANGE_CAMERA_TYPE_BUTTON_ID,
 	CHANGE_MODE_BUTTON_ID,
@@ -77,9 +78,9 @@ public:
 	IGUIEnvironment* guienv;
 	IGUISkin* skin;
 	IGUIFont* font;
-	
+
 	IGUIStaticText *staticText;
-	
+
 	IGUITab * rightTab;
 	IGUITab * menuTab;
 	IGUITab * itemsTab;
