@@ -1,6 +1,7 @@
 #include <iostream>
 #include <irrlicht.h>
 #include <vector>
+#include "LedCube.h"
 
 
 
@@ -14,7 +15,6 @@ using namespace gui;
 
 using namespace std;
 
-char* chartobin ( unsigned char c );
 
 enum
 {
@@ -22,126 +22,6 @@ enum
     GUI_ID_BOTTOM_TAB,
     GUI_ID_FILE_OPEN_BUTTON,
     GUI_ID_TRANSPARENCY_SCROLL_BAR
-};
-
-class LedCubeData{
-public:
-    char m_data[8][8];
-
-    char* chartobin ( unsigned char c )
-    {
-        static char bin[CHAR_BIT + 1] = { 0 };
-        int i;
-
-        for ( i = CHAR_BIT - 1; i >= 0; i-- )
-        {
-            bin[i] = (c % 2) + '0';
-            c /= 2;
-        }
-
-        return bin;
-    }
-
-
-    LedCubeData(){}
-    void setLed(char l, char r,char c){
-        m_data[l][r]=m_data[l][r] | (char)1<<c;
-    }
-    void clearLed(char l, char r,char c){
-        m_data[l][r]=m_data[l][r] & ~( (char)1<<c);
-    }
-    void changeAllto(char setValue){
-
-
-        for(char i=0;i<8;i++)
-            for(char j=0;j<8;++j)
-                m_data[i][j]=setValue;
-    }
-    void print(){
-        for(char i=0;i<8;i++)
-            for(char j=0;j<8;++j)
-                cout<<chartobin(m_data[i][j])<<endl;
-    }
-
-};
-
-class CubeObject{
-    private:
-    vector<ISceneNode *>cubes;
-    LedCubeData m_data;
-    IVideoDriver* m_driver;
-    const io::path path_on="../../media/green.jpg";
-    const io::path path_off="../../media/black.jpg";
-
-    vector<ISceneNode*> createOneRowCube(ISceneManager *smgr,core::vector3df position,float space){
-    vector<ISceneNode*> row;
-    ISceneNode* node;
-    for(int i=0;i<8;i++){
-        position.X+=space;
-        row.push_back(node=smgr->addCubeSceneNode(1.0f,0,0,position));
-        node->setMaterialFlag(EMF_LIGHTING,true);
-    }
-    return row;
-}
-
-vector<ISceneNode*> createOneFaceCube(ISceneManager *smgr,core::vector3df position,float space){
-    vector<ISceneNode*> face;
-    for(int i=0;i<8;i++){
-       position.Y-=space;
-       vector<ISceneNode*> result=createOneRowCube(smgr,position,space);
-       face.insert(face.end(),result.begin(),result.end());
-    }
-    return face;
-}
-
-vector<ISceneNode*> createLedCube(ISceneManager *smgr,core::vector3df position,float space){
-
-    vector<ISceneNode*> ledCube;
-    for(int i=0;i<8;i++){
-       position.Z+=space;
-       vector<ISceneNode*> result=createOneFaceCube(smgr,position,space);
-       ledCube.insert(ledCube.end(),result.begin(),result.end());
-    }
-    return ledCube;
-
-}
-public:
-CubeObject(ISceneManager *smgr,IVideoDriver* driver,core::vector3df position,float space){
-        cubes=createLedCube(smgr,position,space);
-        m_driver=driver;
-        m_data.changeAllto(0x01);
-    }
-
-    void setLedCubeTexture(IVideoDriver* driver,const io::path path){
-        for(int i=0;i<512;i++)
-            cubes.at(i)->setMaterialTexture( 0, driver->getTexture(path) );
-    }
-
-    void switchLed(core::vector3di pos,IVideoDriver* driver,const io::path path){
-
-        cubes.at(pos.X*64+pos.Y*8+pos.Z)->setMaterialTexture( 0, driver->getTexture(path));
-
-    }
-    void switchRow(char layer,char row){
-        char * arr=m_data.chartobin(m_data.m_data[layer][row]);
-
-        for(char i=0;i<8;++i){
-            cubes.at(layer*64+row*8+i)->setMaterialTexture( 0, m_driver->getTexture(arr[i]=='1'?path_on:path_off));
-        }
-
-    }
-
-    LedCubeData getData(){
-        return m_data;
-    }
-    void loadData(){
-        cout<<"load data"<<endl;
-        for(char i=0;i<8;i++)
-            for(char j=0;j<8;j++){
-                //bir satırı demo kupe aktar
-                switchRow(i,j);
-        }
-    }
 };
 
 
@@ -289,12 +169,38 @@ int main(int argc, char** argv)
     */
      u32 then = device->getTimer()->getTime();
     const f32 MOVEMENT_SPEED = 5.f;
-    CubeObject cube(smgr,driver,core::vector3df(5,45,-10),4);
-    cube.setLedCubeTexture(driver,"../../media/black.jpg");
-    cube.switchLed(core::vector3di(1,0,7),driver,"../../media/green.jpg");
 
+    /*Test Cube Start*/
 
+    CubeObject cube(smgr,driver,core::vector3df(7,45,-15),4);
+
+    cube.getData().setLed(1,0,1);
     cube.loadData();
+
+    vector<ISceneNode*>cizim;
+   /* ISceneNode * deneme=smgr->addSphereSceneNode(0.1f,16,0,-1,core::vector3df(7,45,-15));
+
+    deneme->setMaterialTexture(0,driver->getTexture("../../media/lightgrey.jpg"));
+    deneme->setMaterialType(EMT_TRANSPARENT_ADD_COLOR);
+
+    cizim.push_back(deneme);*/
+
+    for(int i=0; i<20; ++i){
+        ISceneNode * deneme=smgr->addSphereSceneNode(0.1f,16,0,-1,core::vector3df(7-i,45,-15));
+
+        deneme->setMaterialTexture(0,driver->getTexture("../../media/lightgrey.jpg"));
+        deneme->setMaterialType(EMT_TRANSPARENT_ADD_COLOR);
+        cizim.push_back(deneme);
+    }
+
+    /*Test Cube End*/
+
+    //IMeshSceneNode * isnVBox=smgr->addCubeSceneNode(40.0f,0,-1,core::vector3df(22,25,15));
+
+
+    //isnVBox->setMaterialType(EMT_TRANSPARENT_ADD_COLOR);
+
+
     while(device->run())
     {
         /*
@@ -309,7 +215,14 @@ int main(int argc, char** argv)
         then = now;
 
         core::vector3df nodePosition = node->getPosition();
+        cube.checkSetCollision(cizim);
 
+        for(int i=0;i<20;++i){
+            cizim.at(i)->setPosition(cizim.at(i)->getPosition()+core::vector3df(0.5,0,0));
+
+        }
+
+        //deneme->setPosition(deneme->getPosition()+core::vector3df(0.5,0,0));
 
 /*
         // Create a ray through the mouse cursor.
