@@ -1,8 +1,10 @@
 # depslib dependency file v1.0
-1429799739 source:d:\okanprojectslaptop\codeblocks\ledcube\main.cpp
+1429877737 source:d:\okanprojectslaptop\codeblocks\ledcube\main.cpp
 	<iostream>
-	<irrlicht.h>
 	<vector>
+	<irrlicht.h>
+	"MyEventReceiver.h"
+	"Interface.h"
 
 1352124854 d:\irrlicht\irrlicht-1.8.1\include\irrlicht.h
 	"IrrCompileConfig.h"
@@ -991,4 +993,37 @@
 	"aabbox3d.h"
 	"matrix4.h"
 	"IVideoDriver.h"
+
+1429839224 d:\okanprojectslaptop\codeblocks\ledcube\deneme1\myeventreceiver.h
+	"irrlicht.h"
+	"Interface.h"
+	"Objects.h"
+	<vector>
+
+1429779862 d:\okanprojectslaptop\codeblocks\ledcube\deneme1\interface.h
+	"irrlicht.h"
+
+1429834984 d:\okanprojectslaptop\codeblocks\ledcube\deneme1\objects.h
+	"irrlicht.h"
+
+1429877769 d:\okanprojectslaptop\codeblocks\ledcube\myeventreceiver.h
+	<irrlicht.h>
+	"Interface.h"
+	"Objects.h"
+	<vector>
+
+1429877683 d:\okanprojectslaptop\codeblocks\ledcube\interface.h
+	<irrlicht.h>
+
+1429877769 d:\okanprojectslaptop\codeblocks\ledcube\objects.h
+	<irrlicht.h>
+
+1429825728 source:d:\okanprojectslaptop\codeblocks\ledcube\deneme1\interface.cpp
+	"Interface.h"
+
+1429878104 source:d:\okanprojectslaptop\codeblocks\ledcube\deneme1\myeventreceiver.cpp
+	"MyEventReceiver.h"
+
+1429837812 source:d:\okanprojectslaptop\codeblocks\ledcube\deneme1\objects.cpp
+	"Objects.h"
 
