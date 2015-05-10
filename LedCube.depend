@@ -1,11 +1,18 @@
 # depslib dependency file v1.0
-1429889049 source:d:\okanprojectslaptop\codeblocks\ledcube\main.cpp
+1431284848 source:d:\okanprojectslaptop\codeblocks\ledcube\main.cpp
 	<iostream>
 	<vector>
-	<irrlicht.h>
+	"irrlicht.h"
 	"MyEventReceiver.h"
 	"Interface.h"
 	"LedCube.h"
+	"driverChoice.h"
+	"rs232.h"
+	<windows.h>
+	<unistd.h>
+	<stdio.h>
+	<stdlib.h>
+	<time.h>
 
 1352124854 d:\irrlicht\irrlicht-1.8.1\include\irrlicht.h
 	"IrrCompileConfig.h"
@@ -1004,20 +1011,24 @@
 1429884246 d:\okanprojectslaptop\codeblocks\ledcube\deneme1\interface.h
 	"irrlicht.h"
 
-1429879277 d:\okanprojectslaptop\codeblocks\ledcube\deneme1\objects.h
+1429978588 d:\okanprojectslaptop\codeblocks\ledcube\deneme1\objects.h
 	"irrlicht.h"
-
-1429877769 d:\okanprojectslaptop\codeblocks\ledcube\myeventreceiver.h
-	<irrlicht.h>
-	"Interface.h"
-	"Objects.h"
 	<vector>
 
-1429877683 d:\okanprojectslaptop\codeblocks\ledcube\interface.h
-	<irrlicht.h>
+1431095525 d:\okanprojectslaptop\codeblocks\ledcube\myeventreceiver.h
+	"irrlicht.h"
+	"Interface.h"
+	"Objects.h"
+	"LedCube.h"
+	"DrawingObject.h"
+	<vector>
+	<iostream>
 
-1429877769 d:\okanprojectslaptop\codeblocks\ledcube\objects.h
-	<irrlicht.h>
+1430347983 d:\okanprojectslaptop\codeblocks\ledcube\interface.h
+	"irrlicht.h"
+
+1431083404 d:\okanprojectslaptop\codeblocks\ledcube\objects.h
+	"irrlicht.h"
 
 1429883184 source:d:\okanprojectslaptop\codeblocks\ledcube\deneme1\interface.cpp
 	"Interface.h"
@@ -1025,11 +1036,76 @@
 1429879277 source:d:\okanprojectslaptop\codeblocks\ledcube\deneme1\myeventreceiver.cpp
 	"MyEventReceiver.h"
 
-1429888704 source:d:\okanprojectslaptop\codeblocks\ledcube\deneme1\objects.cpp
+1429889778 source:d:\okanprojectslaptop\codeblocks\ledcube\deneme1\objects.cpp
 	"Objects.h"
 
-1429888973 d:\okanprojectslaptop\codeblocks\ledcube\ledcube.h
+1431283761 d:\okanprojectslaptop\codeblocks\ledcube\ledcube.h
 	<iostream>
 	<vector>
-	<irrlicht.h>
+	"irrlicht.h"
+	"Objects.h"
+
+1297943790 d:\okanprojectslaptop\codeblocks\ledcube\newton.h
+
+1297943784 d:\okanprojectslaptop\codeblocks\ledcube\dmathdefines.h
+	<math.h>
+	<float.h>
+
+1297943784 d:\okanprojectslaptop\codeblocks\ledcube\dvector.h
+	"dMathDefines.h"
+
+1297943784 d:\okanprojectslaptop\codeblocks\ledcube\dquaternion.h
+	<dVector.h>
+
+1297943784 d:\irrlicht\newton-dynamics-2.32\packages\dmath\dvector.h
+	"dMathDefines.h"
+
+1297943784 d:\irrlicht\newton-dynamics-2.32\packages\dmath\dmathdefines.h
+	<math.h>
+	<float.h>
+
+1297943784 d:\okanprojectslaptop\codeblocks\ledcube\dmatrix.h
+	<dVector.h>
+
+1351962512 d:\irrlicht\irrlicht-1.8.1\include\driverchoice.h
+	<iostream>
+	<cstdio>
+	"EDriverTypes.h"
+	"irrTypes.h"
+	"IrrlichtDevice.h"
+
+1430347961 source:d:\okanprojectslaptop\codeblocks\ledcube\interface.cpp
+	"Interface.h"
+
+1431107244 source:d:\okanprojectslaptop\codeblocks\ledcube\myeventreceiver.cpp
+	"MyEventReceiver.h"
+
+1431160992 source:d:\okanprojectslaptop\codeblocks\ledcube\objects.cpp
+	"Objects.h"
+	<iostream>
+
+1430319002 d:\okanprojectslaptop\codeblocks\ledcube\rs232.h
+	<stdio.h>
+	<string.h>
+	<termios.h>
+	<sys/ioctl.h>
+	<unistd.h>
+	<fcntl.h>
+	<sys/types.h>
+	<sys/stat.h>
+	<limits.h>
+	<windows.h>
+
+1430319002 source:d:\okanprojectslaptop\codeblocks\ledcube\rs232.c
+	"rs232.h"
+
+1431100079 d:\okanprojectslaptop\codeblocks\ledcube\drawingobject.h
+	"irrlicht.h"
+	"Node.h"
+
+1431094774 d:\okanprojectslaptop\codeblocks\ledcube\node.h
+	"irrlicht.h"
+
+1431283795 source:d:\okanprojectslaptop\codeblocks\ledcube\ledcube.cpp
+	"LedCube.h"
 

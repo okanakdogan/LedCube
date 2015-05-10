@@ -10,7 +10,6 @@ using namespace io;
 using namespace gui;
 
 #define FULLSCREEN dimension2d<u32>(1366, 768)
-#define WINDOWED_1024 dimension2d<u32>(1024, 640)
 
 struct Locations{
 	recti CONE_IMAGE_LOCATION;
@@ -23,10 +22,18 @@ struct Locations{
 	recti ROTATE_BUTTON_LOCATION;
 	recti MOVE_BUTTON_LOCATION;
 	recti SCALE_BUTTON_LOCATION;
+	recti CHOOSE_BUTTON_LOCATION;
+	recti DRAW_BUTTON_LOCATION;
 	recti CHANGE_CAMERA_TYPE_BUTTON_LOCATION;
 	recti CHANGE_MODE_BUTTON_LOCATION;
 	recti ADD_OBJECT_BUTTON_LOCATION;
 	recti EXIT_BUTTON_LOCATION;
+	recti STAR_IMAGE_LOCATION ;
+	recti MAN_IMAGE_LOCATION ;
+	recti ARROW_IMAGE_LOCATION ;
+	recti CIRCLE_IMAGE_LOCATION ;
+
+	recti HELP_BUTTON_LOCATION;
 
 	recti IMAGE_SCROLL_BAR_LOCATION;
 	recti ITEMS_SCROLL_BAR_LOCATION;
@@ -54,20 +61,28 @@ struct Locations{
 enum
 {
 	ROTATE_BUTTON_ID = 101,
-	MOVE_BUTTON_ID,
+	MOVE_BUTTON_ID, 
 	SCALE_BUTTON_ID,
 	CHANGE_CAMERA_TYPE_BUTTON_ID,
 	CHANGE_MODE_BUTTON_ID,
 	ADD_OBJECT_BUTTON_ID,
 	EXIT_BUTTON_ID,
+	HELP_BUTTON_ID,
 	CONE_IMAGE_ID,
 	CUBE_IMAGE_ID,
 	CYLINDER_IMAGE_ID,
 	PYRAMID_IMAGE_ID,
 	RECTANGLE_IMAGE_ID,
 	SQUARE_IMAGE_ID,
+	STAR_IMAGE_ID,
+	MAN_IMAGE_ID,
+	ARROW_IMAGE_ID,
+	CIRCLE_IMAGE_ID,
 	IMAGE_SCROLL_BAR_ID,
-	ITEMS_SCROLL_BAR_ID
+	ITEMS_SCROLL_BAR_ID,
+	DRAW_BUTTON_ID,
+	CHOOSE_BUTTON_ID
+
 };
 
 class Interface{
@@ -78,9 +93,9 @@ public:
 	IGUIEnvironment* guienv;
 	IGUISkin* skin;
 	IGUIFont* font;
-
+	
 	IGUIStaticText *staticText;
-
+	
 	IGUITab * rightTab;
 	IGUITab * menuTab;
 	IGUITab * itemsTab;
@@ -88,10 +103,13 @@ public:
 	IGUIButton *RotateButton;
 	IGUIButton *MoveButton;
 	IGUIButton *ScaleButton;
+	IGUIButton *DrawButton;
+	IGUIButton *ChooseButton;
 	IGUIButton *ChangeCameraTypeButton;
 	IGUIButton *ChangeModeButton;
 	IGUIButton *AddObjectButton;
 	IGUIButton *ExitButton;
+	IGUIButton *HelpButton;
 
 	IGUIImage* coneImage;
 	IGUIImage* cubeImage;
@@ -99,6 +117,10 @@ public:
 	IGUIImage* pyramidImage;
 	IGUIImage* rectangleImage;
 	IGUIImage* squareImage;
+	IGUIImage* manImage ;
+	IGUIImage* circleImage;
+	IGUIImage* arrowImage;
+	IGUIImage* starImage;
 
 	IGUIScrollBar *ImageScrollbar;
 	IGUIScrollBar *ItemsScrollbar;

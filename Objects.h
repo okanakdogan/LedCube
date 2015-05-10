@@ -17,11 +17,14 @@ public:
 
 	bool addAnObject(const wchar_t *filename);
 	void removeObject();
-
+	bool isPointInside(vector3df point);
+	
+	static int groupIdCount;
 	IAnimatedMesh* mesh;
 	IAnimatedMeshSceneNode* node;
 	ITriangleSelector* triangleSelector;
 	bool isSelected;
+	int groupId;
 	IrrlichtDevice *device;
 };
 
