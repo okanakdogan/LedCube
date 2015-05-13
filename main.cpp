@@ -34,6 +34,7 @@ using namespace gui;
 
 using namespace std;
 
+
 #ifdef _WIN32
 DWORD WINAPI MyThreadFunction( LPVOID lpParam )
 {
@@ -41,9 +42,8 @@ DWORD WINAPI MyThreadFunction( LPVOID lpParam )
     threadInf *t = (threadInf*)lpParam;
 
     while(1){
-        t->cube->checkSetCollisionObject(*(t->objs));
-
-        }
+        t->cube->checkSetCollisionObjectOpt(*(t->objs));
+    }
     return 0;
 }
 #endif // _WIN32
@@ -51,13 +51,14 @@ DWORD WINAPI MyThreadFunction( LPVOID lpParam )
 int connectLedCube();
 int sendArrayLedCube(int portNo, unsigned char ledArray[8][8][1]);
 
+
+
 int main(){
-    /*
 	video::E_DRIVER_TYPE driverType=driverChoiceConsole();
 	if (driverType==video::EDT_COUNT)
 		return 1;
-*/
-	IrrlichtDevice *device = createDevice(EDT_OPENGL, FULLSCREEN, 16,false, false, false, NULL);
+
+	IrrlichtDevice *device = createDevice(driverType, FULLSCREEN, 16,false, false, false, NULL);
 
 	IVideoDriver* driver = device->getVideoDriver();
 	ISceneManager* smgr = device->getSceneManager();
@@ -65,20 +66,30 @@ int main(){
 	Interface * intface = new Interface(device,driver);
 
 	vector<Object> objectList;
+    CubeObject *cubes[3];
 
-	CubeObject cube(device->getSceneManager(),device->getVideoDriver(),core::vector3df(150,100,-50),16);
-    cube.loadData();
+    int space=16;
+    core::vector3df cubePosition(150,100,-50);
 
-	MyEventReceiver receiver(device,intface,objectList,&cube);
+	CubeObject mainCube(device->getSceneManager(),device->getVideoDriver(),cubePosition,space);
+    cubePosition+=core::vector3df(space*8,0,0);
+	CubeObject secondCube(device->getSceneManager(),device->getVideoDriver(),cubePosition,space);
+    cubePosition+=core::vector3df(space*8,0,0);
+	CubeObject thirdCube(device->getSceneManager(),device->getVideoDriver(),cubePosition,space);
+
+    (cubes[0]=&mainCube)->loadData();
+    (cubes[1]=&secondCube)->loadData();
+    (cubes[2]=&thirdCube)->loadData();
+
+	MyEventReceiver receiver(device,intface,objectList,&mainCube);
 	device->setEventReceiver(&receiver);
     #ifdef _WIN32
-
 
     //threadInf tinf(&cube,&(receiver.objects));
     //HANDLE colThread=CreateThread(NULL,0,MyThreadFunction,&tinf,0,NULL);
 
-
     #endif // _WIN32
+
 #ifdef DEVICE_ON
     unsigned char ledArray[8][8][1];
     unsigned char i, j, k =0, layer;
@@ -137,7 +148,21 @@ int main(){
 */
 
 		driver->beginScene(true, true, SCOL_GRAY);
-		cube.checkSetCollisionObject(receiver.objects);
+        for(short i=0;i<3;i++){
+            cubes[i]->getData().changeAllto(0x00);
+            cubes[i]->loadData();
+            cubes[i]->checkSetCollisionObjectOpt(receiver.objects);
+            for(short j=0; j<receiver.drawingObj.size(); j++){
+                cubes[i]->checkSetCollision(receiver.drawingObj[j].node);
+
+            }
+        }
+
+
+
+		//cubes[1]->checkSetCollisionObjectOpt(receiver.objects);
+		//cubes[2]->checkSetCollisionObjectOpt(receiver.objects);
+
 		smgr->drawAll();
 		//cout << "draw ol OKKK\n";
 		intface->guienv->drawAll();

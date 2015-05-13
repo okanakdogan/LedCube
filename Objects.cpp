@@ -37,8 +37,7 @@ bool Object::addAnObject(const wchar_t *filename){
 			if(triangleSelector)
 				node->setTriangleSelector(triangleSelector);
 			triangleSelector->drop();
-			//node->setDebugDataVisible( irr::scene::E_DEBUG_SCENE_TYPE::EDS_BBOX);
-
+			node->setDebugDataVisible(1);
 			return true;
 		}else{
 			return false;
@@ -56,7 +55,8 @@ void Object::removeObject(){
 // aabbox3d isPointInside kullanýlacak optimizasyon için
 bool Object::isPointInside(vector3df point)
 {
-	aabbox3df box = node->getTransformedBoundingBox();
+	node->updateAbsolutePosition();
+	aabbox3df box = aabbox3df(node->getTransformedBoundingBox().MinEdge-1,node->getTransformedBoundingBox().MaxEdge+1);
 	if(!box.isPointInside(point))
 		return false;
 

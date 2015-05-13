@@ -13,7 +13,7 @@ Interface::Interface(IrrlichtDevice *device, IVideoDriver* driver){
 	l.MAN_IMAGE_LOCATION = recti(30, value+780, 250, value+910);
 	l.ARROW_IMAGE_LOCATION = recti(30, value+910, 250, value+1040);
 	l.CIRCLE_IMAGE_LOCATION = recti(30, value+1040, 250, value+1170);
-	
+
 
 	l.ROTATE_BUTTON_LOCATION = rect<s32>(0,0,100,50);
 	l.MOVE_BUTTON_LOCATION = rect<s32>(100,0,200,50);
@@ -26,7 +26,7 @@ Interface::Interface(IrrlichtDevice *device, IVideoDriver* driver){
 	l.ADD_OBJECT_BUTTON_LOCATION = rect<s32>(690,0,850,50);
 	l.EXIT_BUTTON_LOCATION = rect<s32>(690,100,780,150);
 
-	
+
 
 	l.IMAGE_SCROLL_BAR_LOCATION = rect<s32>(250, 0, 270, 700);
 	l.ITEMS_SCROLL_BAR_LOCATION = rect<s32>(220, 0, 240, 160);
@@ -34,11 +34,9 @@ Interface::Interface(IrrlichtDevice *device, IVideoDriver* driver){
 
 	guienv = device->getGUIEnvironment();
 	skin = guienv->getSkin();
-#ifndef __linux__
-	font = guienv->getFont("../media/font/myfont.xml");
-#else
+
 	font = guienv->getFont("media/font/myfont.xml");
-#endif
+
 	skin->setFont(font);
 	skin->setFont(guienv->getBuiltInFont(), EGDF_TOOLTIP);
 
@@ -57,7 +55,7 @@ Interface::Interface(IrrlichtDevice *device, IVideoDriver* driver){
     IGUITabControl * menuTabControl= guienv->addTabControl(rect<s32>(250,FULLSCREEN.Height*0.70,FULLSCREEN.Width*0.80,FULLSCREEN.Height),0,true,true,-1);
     menuTab=menuTabControl->addTab(L"MENU",-1);
 	menuTab->setTextColor(SCOL_GREEN);
-	
+
 	IGUITabControl * itemsTabControl= guienv->addTabControl(rect<s32>(0,FULLSCREEN.Height*0.70,FULLSCREEN.Width*0.184,FULLSCREEN.Height),0,true,true,-1);
     itemsTab=itemsTabControl->addTab(L"ITEMS",-1);
 	itemsTab->setTextColor(SCOL_GREEN);
@@ -95,12 +93,10 @@ Interface::Interface(IrrlichtDevice *device, IVideoDriver* driver){
 	st->setOverrideColor(SCOL_BLUE);
 	coneImage->addChild(st);
 	coneImage->setToolTipText(L"To Add Cone Object CLICK!");
-	
-#ifndef __linux__
-	coneImage->setImage(driver->getTexture("../media/cone.png"));
-#else
+
+
 	coneImage->setImage(driver->getTexture("media/cone.png"));
-#endif
+
 
 	cubeImage = guienv->addImage(l.CUBE_IMAGE_LOCATION, rightTab, CUBE_IMAGE_ID);
 	st = guienv->addStaticText(L"Cube Object",rect<s32>(0,101,220,130),true,true,cubeImage,-1,false);
@@ -108,11 +104,9 @@ Interface::Interface(IrrlichtDevice *device, IVideoDriver* driver){
 	cubeImage->addChild(st);
 	cubeImage->setToolTipText(L"To Add Cube Object CLICK!");
 
-#ifndef __linux__	
-	cubeImage->setImage(driver->getTexture("../media/cube.png"));
-#else
+
 	cubeImage->setImage(driver->getTexture("media/cube.png"));
-#endif
+
 
 	cylinderImage = guienv->addImage(l.CYLINDER_IMAGE_LOCATION, rightTab, CYLINDER_IMAGE_ID);
 	st = guienv->addStaticText(L"Cylinder Object",rect<s32>(0,101,220,130),true,true,cylinderImage,-1,false);
@@ -120,11 +114,9 @@ Interface::Interface(IrrlichtDevice *device, IVideoDriver* driver){
 	cylinderImage->addChild(st);
 	cylinderImage->setToolTipText(L"To Add Cylinder Object CLICK!");
 
-#ifndef __linux__	
-	cylinderImage->setImage(driver->getTexture("../media/cylinder.png"));
-#else
+
 	cylinderImage->setImage(driver->getTexture("media/cylinder.png"));
-#endif
+
 
 	pyramidImage = guienv->addImage(l.PYRAMID_IMAGE_LOCATION, rightTab, PYRAMID_IMAGE_ID);
 	st = guienv->addStaticText(L"Pyramid Object",rect<s32>(0,101,220,130),true,true,pyramidImage,-1,false);
@@ -132,11 +124,9 @@ Interface::Interface(IrrlichtDevice *device, IVideoDriver* driver){
 	pyramidImage->addChild(st);
 	pyramidImage->setToolTipText(L"To Add Pyramid Object CLICK!");
 
-#ifndef __linux__	
-	pyramidImage->setImage(driver->getTexture("../media/pyramid.png"));
-#else
+
 	pyramidImage->setImage(driver->getTexture("media/pyramid.png"));
-#endif
+
 
 	rectangleImage = guienv->addImage(l.RECTANGLE_IMAGE_LOCATION, rightTab, RECTANGLE_IMAGE_ID);
 	st = guienv->addStaticText(L"Rectangle Object",rect<s32>(0,101,220,130),true,true,rectangleImage,-1,false);
@@ -144,11 +134,9 @@ Interface::Interface(IrrlichtDevice *device, IVideoDriver* driver){
 	rectangleImage->addChild(st);
 	rectangleImage->setToolTipText(L"To Add Rectangle Object CLICK!");
 
-#ifndef __linux__	
-	rectangleImage->setImage(driver->getTexture("../media/rectangle.png"));
-#else
+
 	rectangleImage->setImage(driver->getTexture("media/rectangle.png"));
-#endif
+
 
 	squareImage = guienv->addImage(l.SQUARE_IMAGE_LOCATION, rightTab, SQUARE_IMAGE_ID);
 	st = guienv->addStaticText(L"Square Object",rect<s32>(0,101,220,130),true,true,squareImage,-1,false);
@@ -156,11 +144,9 @@ Interface::Interface(IrrlichtDevice *device, IVideoDriver* driver){
 	squareImage->addChild(st);
 	squareImage->setToolTipText(L"To Add Square Object CLICK!");
 
-#ifndef __linux__	
-	squareImage->setImage(driver->getTexture("../media/square.png"));
-#else
+
 	squareImage->setImage(driver->getTexture("media/square.png"));
-#endif
+
 
 
 }
@@ -169,7 +155,7 @@ Interface::Interface(Interface* intfaceV){
 	guienv = intfaceV->guienv;
 	skin = intfaceV->skin;
 	font = intfaceV->font;
-	
+
 	staticText = intfaceV->staticText;
 
 	rightTab = intfaceV->rightTab;

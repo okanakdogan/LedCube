@@ -50,7 +50,6 @@
 		</Linker>
 		<Unit filename="Interface.cpp" />
 		<Unit filename="Interface.h" />
-		<Unit filename="LedCube.cpp" />
 		<Unit filename="LedCube.h" />
 		<Unit filename="MyEventReceiver.cpp" />
 		<Unit filename="MyEventReceiver.h" />

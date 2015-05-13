@@ -16,11 +16,27 @@ using namespace gui;
 	public :
 		int isSelected;
 		ISceneNode * node ;
-		Node(){isSelected = false;}
-		Node(ISceneNode * node_)
+		ITriangleSelector* triangleSelector;
+		Node(){
+			isSelected = false;
+			triangleSelector = NULL;
+		}
+		Node(ISceneNode * node_, IrrlichtDevice *device_)
 		{
 			isSelected = false; 
 			node = node_ ;
+			triangleSelector = device_->getSceneManager()->createTriangleSelectorFromBoundingBox(node);
+			node->setTriangleSelector(triangleSelector);
+		}
+		void select(){
+			isSelected = true;
+			for(int i=0; i<node->getMaterialCount(); i++)
+				node->getMaterial(i).EmissiveColor.set(255, 255, 255, 0);
+		}
+		void unSelect(){
+			isSelected = false;
+			for(int i=0; i<node->getMaterialCount(); i++)
+				node->getMaterial(i).EmissiveColor.set(255, 0,   0,   0);
 		}
 	};
 

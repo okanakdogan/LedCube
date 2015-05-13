@@ -71,7 +71,7 @@ public:
 	void mouseMoveHandler();
 
 	vector<Object> objects;
-
+	vector<DrawingObject> drawingObj ;
 	
 private:
 	vector3df setLineLength(line3df newLine ,float newLength);
@@ -93,7 +93,6 @@ private:
 	vector3df tempPosition;
 	int drawCounter;
 	float distanceToNode;
-	vector<DrawingObject> drawingObj ;
 	vector<Node> currentDraw;
 };
 

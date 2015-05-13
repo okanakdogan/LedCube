@@ -23,8 +23,14 @@ bool MyEventReceiver::OnEvent(const SEvent& event){
 			mouseWheelEventHandler(event.MouseInput.Wheel);
 		if(event.MouseInput.isLeftPressed())
 			mouseLeftButtonEventHandler();
-		if(event.MouseInput.Event == EMIE_LMOUSE_LEFT_UP)
+		if(event.MouseInput.Event == EMIE_LMOUSE_LEFT_UP){
 			tempPosition= vector3df(-1000,-1000,-1000);
+			if(drawMode){
+				DrawingObject newDrawingObject = DrawingObject(currentDraw);
+				drawingObj.push_back(newDrawingObject);
+				currentDraw.clear();
+			}
+		}
 		if(event.MouseInput.Event == EMIE_MOUSE_MOVED && drawMode){
 			mouseMoveHandler();
 		}
@@ -67,6 +73,9 @@ bool MyEventReceiver::OnEvent(const SEvent& event){
 			cube->setVisible(cubeVisible);
 			for(int i=0; i<objects.size(); i++){
 				objects[i].node->setVisible(cubeVisible);
+			}
+			for(int i=0; i<drawingObj.size(); i++){
+				drawingObj[i].setVisible(cubeVisible);
 			}
 		}else
 		if(event.KeyInput.Key == KEY_KEY_P && event.KeyInput.Control && event.KeyInput.PressedDown){
@@ -238,9 +247,9 @@ void MyEventReceiver::moveButtonHandler(){
 
 void MyEventReceiver::clearDrawingEvent()
 {
-	for(int i = 0 ; i < objects.size(); i++)
-		objects[i].node->remove();
-	objects.clear();
+	for(int i = 0 ; i < drawingObj.size(); i++)
+		drawingObj[i].remove();
+	drawingObj.clear();
 }
 
 void MyEventReceiver::scaleButtonHandler(){
@@ -472,12 +481,14 @@ void MyEventReceiver::objectSelectHandler(){
 				int groupId = objects[i].groupId;
 				if(groupId == -1){
 					objects[i].isSelected = false;
-					objects[i].node->getMaterial(0).EmissiveColor.set(255, 0,   0,   0);
+					for(int k=0; k<objects[i].node->getMaterialCount(); k++)
+						objects[i].node->getMaterial(k).EmissiveColor.set(255, 0,   0,   0);
 				}else{
 					for(int j=0; j<objects.size(); j++){
 						if(objects[j].groupId == groupId){
 							objects[j].isSelected = false;
-							objects[j].node->getMaterial(0).EmissiveColor.set(255, 0,   0,   0);
+							for(int k=0; k<objects[i].node->getMaterialCount(); k++)
+								objects[j].node->getMaterial(k).EmissiveColor.set(255, 0,   0,   0);
 						}
 					}
 				}
@@ -486,17 +497,30 @@ void MyEventReceiver::objectSelectHandler(){
 				int groupId = objects[i].groupId;
 				if(groupId == -1){
 					objects[i].isSelected = true;
-					objects[i].node->getMaterial(0).EmissiveColor.set(255, 255, 255, 0);
+					for(int k=0; k<objects[i].node->getMaterialCount(); k++)
+						objects[i].node->getMaterial(k).EmissiveColor.set(255, 255, 255, 0);
 				}else{
 					for(int j=0; j<objects.size(); j++){
 						if(objects[j].groupId == groupId){
 							objects[j].isSelected = true;
-							objects[j].node->getMaterial(0).EmissiveColor.set(255, 255, 255, 0);
+							for(int k=0; k<objects[i].node->getMaterialCount(); k++)
+								objects[j].node->getMaterial(k).EmissiveColor.set(255, 255, 255, 0);
 						}
 					}
 				}
 			}
 		}	
+	}
+	vector3df outCollisionPoint = vector3df(1000,1000,1000);
+	triangle3df outTriangle = triangle3df();
+	ISceneNode *outNode;
+	for(int i=0; i<drawingObj.size(); i++){
+		if(drawingObj[i].isCollisionDetach(raytrace, &outCollisionPoint, &outTriangle, outNode,colmgr))
+			if(drawingObj[i].isSelected){
+				drawingObj[i].unSelect();
+			}else{
+				drawingObj[i].select();
+			}
 	}
 }
 
@@ -526,8 +550,10 @@ void MyEventReceiver::drawModeHandler(){
 			mousePosition = setLineLength(ray,250);
 		if(tempPosition==vector3df(-1000,-1000,-1000))
 			tempPosition=mousePosition;
-		ISceneNode *cube1 = device->getSceneManager()->addCubeSceneNode(4.0f);
+		ISceneNode *cube1 = device->getSceneManager()->addCubeSceneNode(6.0f);
 		cube1->setPosition(mousePosition);
+		Node obj(cube1,device) ;
+		currentDraw.push_back(obj);
 
 		float distance= tempPosition.getDistanceFrom(mousePosition);
 
@@ -536,40 +562,35 @@ void MyEventReceiver::drawModeHandler(){
 		float x_ = tempPosition.X-mousePosition.X;
 		float y_ = tempPosition.Y-mousePosition.Y;
 		float z_ = tempPosition.Z-mousePosition.Z;
-		
-		
+
 		if(cubeCount != 0){
 			float e = 1/(double)cubeCount ;
 			
 			for(int i = 0 ; i < cubeCount ; i++)
 			{
-				ISceneNode *cube = device->getSceneManager()->addCubeSceneNode(4.0f);
+				ISceneNode *cube = device->getSceneManager()->addCubeSceneNode(6.0f);
 				cube->setPosition(vector3df(tempPosition.X+x_*e*i,tempPosition.Y+y_*e*i,tempPosition.Z+z_*e*i));
-				Node obj(cube) ;
+				Node obj(cube,device) ;
 				currentDraw.push_back(obj);
 			}
-		
 		}
-	
-
-	
-		
-		
-		cout << objects.size() << endl;
 	}else{
 		ICameraSceneNode *camera = device->getSceneManager()->getActiveCamera();
-		
-
+	
 		line3df ray = device->getSceneManager()->getSceneCollisionManager()->
 			getRayFromScreenCoordinates(device->getCursorControl()->getPosition(),device->getSceneManager()->getActiveCamera());
-if(otomaticFocus)		
+
+		if(otomaticFocus)		
 			mousePosition = setLineLength(ray,distanceToNode);
 		else
 			mousePosition = setLineLength(ray,250);
+
 		if(tempPosition==vector3df(-1000,-1000,-1000))
 			tempPosition=mousePosition;
-		ISceneNode *cube1 = device->getSceneManager()->addCubeSceneNode(4.0f);
+		ISceneNode *cube1 = device->getSceneManager()->addCubeSceneNode(6.0f);
 		cube1->setPosition(mousePosition);
+		Node obj(cube1,device) ;
+		currentDraw.push_back(obj);
 
 		float distance= tempPosition.getDistanceFrom(mousePosition);
 
@@ -578,21 +599,18 @@ if(otomaticFocus)
 		float x_ = tempPosition.X-mousePosition.X;
 		float y_ = tempPosition.Y-mousePosition.Y;
 		float z_ = tempPosition.Z-mousePosition.Z;
-		
-		
+
 		if(cubeCount != 0){
 			float e = 1/(double)cubeCount ;
 			
 			for(int i = 0 ; i < cubeCount ; i++)
 			{
-				ISceneNode *cube = device->getSceneManager()->addCubeSceneNode(4.0f);
-				cube->setPosition(vector3df(tempPosition.X+x_*e*i,tempPosition.Y+y_*e*i,tempPosition.Z+z_*e*i));
-				Node obj(cube) ;
+				ISceneNode *cube = device->getSceneManager()->addCubeSceneNode(6.0f);
+				cube->setPosition(mousePosition);
+				Node obj(cube,device) ;
 				currentDraw.push_back(obj);
 			}
-		
 		}
-		
 	}
 }
 
@@ -604,14 +622,20 @@ void MyEventReceiver::mouseWheelEventHandler(int wheelValue)
 			for(int i = 0 ; i < objects.size(); i++){
 				if(objects[i].isSelected){
 					vector3df objScale = objects[i].node->getScale();
-					if(objScale.X < 0.1 && objScale.Y < 0.1 && objScale.Z < 0.1){
-						if(wheelValue != 1)
-							break;
-					}
 					if(wheelValue == 1){
 						objects[i].node->setScale(vector3df(objScale.X+0.025,objScale.Y+0.025,objScale.Z+0.025));
-					}else{
+					}else if(!(objScale.X < 0.1 && objScale.Y < 0.1 && objScale.Z < 0.1)){
 						objects[i].node->setScale(vector3df(objScale.X-0.025,objScale.Y-0.025,objScale.Z-0.025));
+					}
+				}
+			}
+			for(int i=0; i<drawingObj.size(); i++){
+				if(drawingObj[i].isSelected){
+					vector3df objScale = drawingObj[i].node[0].node->getScale();
+					if(wheelValue == 1){
+						drawingObj[i].setScale(vector3df(objScale.X+0.025,objScale.Y+0.025,objScale.Z+0.025));
+					}else if(!(objScale.X < 0.1 && objScale.Y < 0.1 && objScale.Z < 0.1)){
+						drawingObj[i].setScale(vector3df(objScale.X-0.025,objScale.Y-0.025,objScale.Z-0.025));
 					}
 				}
 			}
@@ -661,35 +685,81 @@ void MyEventReceiver::mouseLeftButtonEventHandler()
 				line3df ray(device->getSceneManager()->getActiveCamera()->getAbsolutePosition(),
 										device->getSceneManager()->getActiveCamera()->getTarget());
 				vector3df newMousePos = setLineLength(ray,250);
-				vector3df commonPoint = commonPointFounder();
-				float x_ = newMousePos.X - commonPoint.X; 
-				float y_ = newMousePos.Y - commonPoint.Y; 
-				float z_ = newMousePos.Z - commonPoint.Z;
+				vector3df commonPoint = vector3df(0,0,0);
+				int k=0;
+				for(int i=0; i<objects.size(); i++){
+					if(objects[i].isSelected){
+						commonPoint += objects[i].node->getAbsolutePosition();
+						k++;
+					}
+				}
+				commonPoint /= k;
+				vector3df difVec = newMousePos-commonPoint;
 				for(int i = 0 ; i < objects.size(); i++){
 					if(objects[i].isSelected){
 						vector3df oldPosition = objects[i].node->getAbsolutePosition();
-						vector3df newPosition = vector3df(oldPosition.X+x_,oldPosition.Y+y_,oldPosition.Z+z_);
+						vector3df newPosition = oldPosition + difVec;
 						objects[i].node->setPosition(newPosition);
+					}
+				}
+				commonPoint = vector3df(0,0,0);
+				k=0;
+				for(int i=0; i<drawingObj.size(); i++){
+					if(drawingObj[i].isSelected){
+						commonPoint += drawingObj[i].getAbsolutePosition();
+						k++;
+					}
+				}
+				commonPoint /= k;
+				difVec = newMousePos - commonPoint;
+				for(int i=0; i<drawingObj.size(); i++){
+					if(drawingObj[i].isSelected){
+						vector3df oldPosition = drawingObj[i].getAbsolutePosition();
+						vector3df newPosition = vector3df(oldPosition + difVec);
+						drawingObj[i].setPosition(newPosition);
 					}
 				}
 			}else{
 				line3df ray = colmgr->getRayFromScreenCoordinates(device->getCursorControl()->getPosition(),smgr->getActiveCamera());
 				vector3df newMousePos = setLineLength(ray,250);
-				vector3df commonPoint = commonPointFounder();
-				float x_ = newMousePos.X - commonPoint.X; 
-				float y_ = newMousePos.Y - commonPoint.Y; 
-				float z_ = newMousePos.Z - commonPoint.Z;
+				vector3df commonPoint = vector3df(0,0,0);
+				int k=0;
+				for(int i=0; i<objects.size(); i++){
+					if(objects[i].isSelected){
+						commonPoint += objects[i].node->getAbsolutePosition();
+						k++;
+					}
+				}
+				commonPoint /= k;
+				vector3df difVec = newMousePos-commonPoint;
 				for(int i = 0 ; i < objects.size(); i++){
 					if(objects[i].isSelected){
 						vector3df oldPosition = objects[i].node->getAbsolutePosition();
-						vector3df newPosition = vector3df(oldPosition.X+x_,oldPosition.Y+y_,oldPosition.Z+z_);
+						vector3df newPosition = oldPosition + difVec;
 						objects[i].node->setPosition(newPosition);
+					}
+				}
+				commonPoint = vector3df(0,0,0);
+				k=0;
+				for(int i=0; i<drawingObj.size(); i++){
+					if(drawingObj[i].isSelected){
+						commonPoint += drawingObj[i].getAbsolutePosition();
+						k++;
+					}
+				}
+				commonPoint /= k;
+				difVec = newMousePos - commonPoint;
+				for(int i=0; i<drawingObj.size(); i++){
+					if(drawingObj[i].isSelected){
+						vector3df oldPosition = drawingObj[i].getAbsolutePosition();
+						vector3df newPosition = vector3df(oldPosition + difVec);
+						drawingObj[i].setPosition(newPosition);
 					}
 				}
 			}
 			break ;
 		case rotate_id:
-			for(int i = 0 ; i < objects.size(); i++){
+			/*for(int i = 0 ; i < objects.size(); i++){
 				if(objects[i].isSelected){
 					vector3df objRotate = objects[i].node->getRotation();
 					vector3df rot = vector3df(0,0,0); //get current rotation (euler)
@@ -711,11 +781,49 @@ void MyEventReceiver::mouseLeftButtonEventHandler()
 					objRotate = m.getRotationDegrees(); //get rotation vector from matrix (euler)
 
 					objects[i].node->setRotation(objRotate); //rotate node 
-					break ;
+					
 				}
 			}
 			tempPosition = mousePosition  ;
-			break ;	
+			break ;	*/
+			for(int i = 0 ; i < objects.size(); i++){
+				if(objects[i].isSelected){
+					line3df ray = smgr->getSceneCollisionManager()->
+								getRayFromScreenCoordinates(device->getCursorControl()->getPosition(), smgr->getActiveCamera());
+      				vector3df nodePosition = objects[i].node->getPosition();
+      				plane3df plane(nodePosition, vector3df(0, 0, 255));
+      				vector3df mousePosition;
+
+      				if(plane.getIntersectionWithLine(ray.start, ray.getVector(), mousePosition))
+      
+      					objects[i].node->setRotation(objects[i].node->getPosition().rotationToDirection
+      						(core::vector3df(-mousePosition.X, mousePosition.Y, 255)));
+
+					else
+      					objects[i].node->setRotation(objects[i].node->getPosition().rotationToDirection
+      						(core::vector3df(mousePosition.X, mousePosition.Y, 255)));
+					/*
+					line3df ray(device->getSceneManager()->getActiveCamera()->getAbsolutePosition(),
+						device->getSceneManager()->getActiveCamera()->getTarget());
+
+					vector3df from = objects[i].node->getAbsolutePosition();
+					vector3df to = setLineLength(ray,250);
+
+					from.normalize();
+					to.normalize();
+
+					core::quaternion q;
+    				q.rotationFromTo(from, to);
+
+    				core::matrix4 m1 = q.getMatrix();
+    				core::matrix4 m2 = objects[i].node->getAbsoluteTransformation();
+    
+    				objects[i].node->setRotation((m1*m2).getRotationDegrees());		
+					*/	
+				}
+			}
+			tempPosition = mousePosition  ;
+			break ;
 		case draw_id:
         	drawModeHandler();
 			tempPosition = mousePosition  ;
