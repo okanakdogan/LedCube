@@ -1,5 +1,5 @@
 # depslib dependency file v1.0
-1431560949 source:d:\okanprojectslaptop\codeblocks\ledcube\main.cpp
+1431631769 source:d:\okanprojectslaptop\codeblocks\ledcube\main.cpp
 	<iostream>
 	<vector>
 	"irrlicht.h"
@@ -1039,7 +1039,7 @@
 1429889778 source:d:\okanprojectslaptop\codeblocks\ledcube\deneme1\objects.cpp
 	"Objects.h"
 
-1431558484 d:\okanprojectslaptop\codeblocks\ledcube\ledcube.h
+1431623206 d:\okanprojectslaptop\codeblocks\ledcube\ledcube.h
 	<iostream>
 	<vector>
 	"irrlicht.h"
@@ -1100,11 +1100,11 @@
 1430319002 source:d:\okanprojectslaptop\codeblocks\ledcube\rs232.c
 	"rs232.h"
 
-1431539595 d:\okanprojectslaptop\codeblocks\ledcube\drawingobject.h
+1431610928 d:\okanprojectslaptop\codeblocks\ledcube\drawingobject.h
 	"irrlicht.h"
 	"Node.h"
 
-1431436463 d:\okanprojectslaptop\codeblocks\ledcube\node.h
+1431610460 d:\okanprojectslaptop\codeblocks\ledcube\node.h
 	"irrlicht.h"
 
 1431541080 source:d:\okanprojectslaptop\codeblocks\ledcube\ledcube.cpp

@@ -29,13 +29,13 @@ public :
 		isSelected = true;
 	}
 	void unSelect(){
-		for(int i=0; i<node.size(); i++){
+		for(u32 i=0; i<node.size(); i++){
 			node[i].unSelect();
 		}
 		isSelected = false;
 	}
 	bool isPointInside(vector3df point){
-		for(int i=0; i<node.size(); i++){
+		for(u32 i=0; i<node.size(); i++){
 			if(node[i].node->getTransformedBoundingBox().isPointInside(point))
 				return true;
 		}
@@ -43,7 +43,7 @@ public :
 	}
 	bool isCollisionDetach(line3df raytrace, vector3df *outCollisionPoint, triangle3df *outTriangle, ISceneNode *outNode,
 							ISceneCollisionManager *colmgr){
-		for(int i=0; i<node.size(); i++)
+		for(u32 i=0; i<node.size(); i++)
 			if(colmgr->getCollisionPoint(raytrace, node[i].triangleSelector, *outCollisionPoint, *outTriangle, outNode))
 				return true;
 		return false;
@@ -51,7 +51,7 @@ public :
 	void setPosition(vector3df point){
 		vector3df commonPoint = getAbsolutePosition();
 		vector3df difVec = point-commonPoint;
-		for(int i=0; i<node.size(); i++){
+		for(u32 i=0; i<node.size(); i++){
 			vector3df oldPosition = node[i].node->getAbsolutePosition();
 			vector3df newPosition = oldPosition+difVec;
 			node[i].node->setPosition(newPosition);

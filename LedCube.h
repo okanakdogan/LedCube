@@ -40,15 +40,58 @@ public:
 
 
     LedCubeData(){
+      for(unsigned char i=0;i<8;i++)
+            for(unsigned char j=0;j<8;++j)
+                m_data[i][j]=0;
+    }
+    void setLed(unsigned char l,unsigned char r,unsigned char c){
+        m_data[l][r]=m_data[l][r] | (char)1<<(CHAR_BIT-1-c);
+    }
+    void clearLed(unsigned char l,unsigned char r,unsigned char c){
+        m_data[l][r]=m_data[l][r] & ~( (char)1<<(CHAR_BIT-1-c));
+    }
+    void changeAllto(unsigned char setValue){
+        for(unsigned char i=0;i<8;i++)
+            for(unsigned char j=0;j<8;++j)
+                m_data[i][j]=setValue;
+    }
+    void print(){
+        for(unsigned char i=0;i<8;i++)
+            for(unsigned char j=0;j<8;++j)
+                std::cout<<chartobin(m_data[i][j])<<std::endl;
+    }
+
+};
+/*
+class LedCubeDataUpdated{
+public:
+    unsigned char m_data[8][8];
+
+    char* chartobin ( unsigned char c )
+    {
+        static char bin[CHAR_BIT + 1] = { 0 };
+        int i;
+
+        for ( i = CHAR_BIT - 1; i >= 0; i-- )
+        {
+            bin[i] = (c % 2) + '0';
+            c /= 2;
+        }
+
+        return bin;
+    }
+
+
+    LedCubeData(){
       for(char i=0;i<8;i++)
             for(char j=0;j<8;++j)
                 m_data[i][j]=0;
     }
-    void setLed(char l, char r,char c){
-        m_data[l][r]=m_data[l][r] | (char)1<<CHAR_BIT-1-c;
+    void setLed(char r, char c,char d){
+        m_data[r][c]=m_data[r][c] | (char)1<<c;
     }
-    void clearLed(char l, char r,char c){
-        m_data[l][r]=m_data[l][r] & ~( (char)1<<CHAR_BIT-1-c);
+    void clearLed(char r, char c,char d){
+        m_data[r][c]=m_data[r][c] & ~( (char)1<<c);
     }
     void changeAllto(char setValue){
         for(char i=0;i<8;i++)
@@ -62,7 +105,7 @@ public:
     }
 
 };
-
+*/
 class CubeObject{
     private:
     vector<ISceneNode *>cubes;
@@ -124,7 +167,7 @@ CubeObject(ISceneManager *smgr,IVideoDriver* driver,core::vector3df position,flo
         cube->setMaterialTexture( 0, m_driver->getTexture(status==true?path_on:path_off));
          cube->setMaterialType(status==true?EMT_SOLID:EMT_TRANSPARENT_ADD_COLOR);
     }
-    void switchRow(char layer,char row){
+    void switchRow(unsigned char layer,unsigned char row){
         char * arr=m_data.chartobin(m_data.m_data[layer][row]);
         ISceneNode* cube;
         for(char i=0;i<8;++i){
@@ -155,10 +198,10 @@ CubeObject(ISceneManager *smgr,IVideoDriver* driver,core::vector3df position,flo
         //std::cout<<"psize="<<psize<<endl;
         for(int i=0; i<512; ++i){
             int loc=0;
-            bool collision=false;
+
 
             while(loc<psize){
-
+                bool collision=false;
                 /*collision check*/
 				part=painted[loc].node;
 				part->updateAbsolutePosition();
@@ -238,11 +281,10 @@ CubeObject(ISceneManager *smgr,IVideoDriver* driver,core::vector3df position,flo
             part=&objects.at(loc++);
 
             /*abox collision check*/
-/*
             if(!(ledAbox.intersectsWithBox(part->node->getTransformedBoundingBox()))){
                continue;
             }
-*/
+
             /*collision check*/
              for(int i=0;i<512;++i){
                 sph=cubes.at(i);
@@ -258,7 +300,7 @@ CubeObject(ISceneManager *smgr,IVideoDriver* driver,core::vector3df position,flo
      }
 
 	void setVisible(bool isVisible){
-		for(int i=0; i<cubes.size(); ++i){
+		for(unsigned char  i=0; i<cubes.size(); ++i){
 			if(cubes[i]->getMaterial(0).MaterialType == EMT_TRANSPARENT_ADD_COLOR){
 				cubes[i]->setVisible(isVisible);
 			}
@@ -266,6 +308,16 @@ CubeObject(ISceneManager *smgr,IVideoDriver* driver,core::vector3df position,flo
 	}
 
 };
+/*
+void threeCubeDataArray(char *tcArray,char * mCube,char * sCube,char * tCube){
+
+    for(int i=0;i<8;i++)
+        for(int j=0;j<8;j++)
+            tcArray[][]
+
+
+}
+*/
 #ifdef _WIN32
 
 struct threadInf{
