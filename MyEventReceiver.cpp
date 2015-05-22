@@ -6,14 +6,44 @@ MyEventReceiver::MyEventReceiver(IrrlichtDevice *deviceV, Interface *intfaceV, v
 	for(int i=0; i<objectsV.size(); i++){
 		objects.push_back(objectsV[i]);
 	}
+
+	collisionFlag = false ;
 	ImageScrollBarOldPos = intface->ImageScrollbar->getPos();
-	ItemsScrollBarOldPos = intface->ItemsScrollbar->getPos();
 	fpsCameraType = false;
 	selectMode = false;
 	otomaticFocus = false;
+	drawMode =false;
 	currentOp =  noop_id ;
 	distanceToNode = 250;
 	tempPosition= vector3df(-1000,-1000,-1000);
+	int coneCount=0;
+	int cubeCount=0;
+	int cylinderCount=0;
+	int pyramidCount=0;
+	int rectangleCount=0;
+	int squareCount=0;
+	int drawCount=0;
+	int arrow=0;
+	int dumble=0;
+	int circle=0;
+	int man=0;
+	int heart=0;
+	int mug=0;
+	int wolf=0;
+	shapeIds.push_back(coneCount);
+	shapeIds.push_back(cubeCount);
+	shapeIds.push_back(cylinderCount);
+	shapeIds.push_back(pyramidCount);
+	shapeIds.push_back(rectangleCount);
+	shapeIds.push_back(squareCount);
+	shapeIds.push_back(drawCount);
+	shapeIds.push_back(arrow);
+	shapeIds.push_back(dumble);
+	shapeIds.push_back(circle);
+	shapeIds.push_back(man);
+	shapeIds.push_back(heart);
+	shapeIds.push_back(mug);
+	shapeIds.push_back(wolf);
 }
 
 bool MyEventReceiver::OnEvent(const SEvent& event){
@@ -21,17 +51,30 @@ bool MyEventReceiver::OnEvent(const SEvent& event){
 	if(event.EventType == EET_MOUSE_INPUT_EVENT){
 		if(event.MouseInput.Event == EMIE_MOUSE_WHEEL)
 			mouseWheelEventHandler(event.MouseInput.Wheel);
-		if(event.MouseInput.isLeftPressed())
+		if(event.MouseInput.isLeftPressed()){
 			mouseLeftButtonEventHandler();
+		}
 		if(event.MouseInput.Event == EMIE_LMOUSE_LEFT_UP){
 			tempPosition= vector3df(-1000,-1000,-1000);
 			if(drawMode){
 				DrawingObject newDrawingObject = DrawingObject(currentDraw);
+				shapeIds[6]++;
+				std::string s="drawing ";
+				stringstream ss;
+				ss<<shapeIds[6];
+				s.append(ss.str());
+				wstring widestr = wstring(s.begin(), s.end());
+				intface->Listbox->addItem(widestr.c_str());
+				//char str2[64];
+				//strncpy(str2, s.c_str(), sizeof(str2));
+				//stringc strc= str2;
+				newDrawingObject.name=s;
 				drawingObj.push_back(newDrawingObject);
 				currentDraw.clear();
+				//drawMode=false;
 			}
 		}
-		if(event.MouseInput.Event == EMIE_MOUSE_MOVED && drawMode){
+		if(event.MouseInput.Event == EMIE_MOUSE_MOVED && drawMode && otomaticFocus){
 			mouseMoveHandler();
 		}
 	}else
@@ -41,20 +84,42 @@ bool MyEventReceiver::OnEvent(const SEvent& event){
 		if(event.KeyInput.Key == KEY_KEY_C && event.KeyInput.PressedDown){
 			changeCameraTypeButtonHandler();
 		}else
+		if(event.KeyInput.Key == KEY_KEY_H && event.KeyInput.PressedDown){
+			if(collisionFlag) collisionFlag = false;
+			else collisionFlag = true;
+		}
+
+		else
 		if(event.KeyInput.Key == KEY_KEY_O && event.KeyInput.PressedDown){
 			if(otomaticFocus) otomaticFocus = false;
 			else otomaticFocus = true;
 		}else
 		// if user press d key then delete selected item
 		if(event.KeyInput.Key == KEY_KEY_D && event.KeyInput.PressedDown){
-			if(!objects.empty()){
-				for(int i=0; i<objects.size(); ++i){
-					if(objects[i].isSelected){
-						removeObjectHandler(i);
-					}
+
+			for(int i=0; i<objects.size(); ++i){
+				if(objects[i].isSelected){
+					removeObjectHandler(i);
 				}
 			}
-		
+			for(int i=0; i<drawingObj.size(); i++){
+				if(drawingObj[i].isSelected){
+					std::string sv = drawingObj[i].name;
+					for(int j=0;j<intface->Listbox->getItemCount();j++)
+					{
+						wstring ws=intface->Listbox->getListItem(j);
+						std::string s=wtoa(ws);
+
+						if(s.compare(sv)==0)
+						{
+							intface->Listbox->removeItem(j);
+							break;
+						}
+					}
+					drawingObj[i].remove();
+					drawingObj.erase(drawingObj.begin()+i);
+				}
+			}
 		}else
 		// if user press s key then change select mode
 		if(event.KeyInput.Key == KEY_KEY_S && event.KeyInput.PressedDown){
@@ -70,7 +135,7 @@ bool MyEventReceiver::OnEvent(const SEvent& event){
 		if(event.KeyInput.Key == KEY_KEY_L && event.KeyInput.Control && event.KeyInput.PressedDown){
 			if(cubeVisible)	cubeVisible = false;
 			else cubeVisible = true;
-			cube->setVisible(cubeVisible);
+			//cube->setVisible(cubeVisible);
 			for(int i=0; i<objects.size(); i++){
 				objects[i].node->setVisible(cubeVisible);
 			}
@@ -91,20 +156,46 @@ bool MyEventReceiver::OnEvent(const SEvent& event){
 		if(event.KeyInput.Key == KEY_KEY_G && event.KeyInput.PressedDown){
 			makeGroupHandler();
 			Object::groupIdCount++;
+			DrawingObject::groupIdCount++;
 		}
 
 		else if(event.KeyInput.Key == KEY_KEY_N && event.KeyInput.PressedDown){
 			currentOp = noop_id;
-			DrawingObject draw ;
-			draw.node  =  currentDraw ;
-			drawingObj.push_back(draw)  ;
+			DrawingObject draw;
+			draw.node  =  currentDraw;
+			drawingObj.push_back(draw);
 			drawMode = false;
 			selectMode = false;
 
 		}else if(event.KeyInput.Key == KEY_KEY_Q && event.KeyInput.PressedDown)
 			clearDrawingEvent();
-		else if(event.KeyInput.Key == KEY_KEY_E && event.KeyInput.PressedDown)
-			cube->checkSetCollisionObject(objects);
+		else if(event.KeyInput.Key == KEY_KEY_A && event.KeyInput.PressedDown){
+			for(int i=0; i<objects.size(); i++){
+				if(objects[i].isSelected){
+					if(objects[i].anim->animationMode) objects[i].anim->animationMode = false;
+					else objects[i].anim->animationMode = true;
+				}
+			}
+			for(int i=0; i<drawingObj.size(); i++){
+				if(drawingObj[i].isSelected){
+					if(drawingObj[i].anim->animationMode) drawingObj[i].anim->animationMode = false;
+					else drawingObj[i].anim->animationMode = true;
+				}
+			}
+		}
+		else if(event.KeyInput.Key == KEY_SPACE && event.KeyInput.PressedDown){
+			for(int i=0; i<objects.size(); i++){
+				if(objects[i].isSelected){
+					objects[i].anim->animationType = (objects[i].anim->animationType+1)%8;
+					cout << objects[i].anim->animationType << endl;
+				}
+			}
+			for(int i=0; i<drawingObj.size(); i++){
+				if(drawingObj[i].isSelected){
+					drawingObj[i].anim->animationType = (drawingObj[i].anim->animationType+1)%8;
+				}
+			}
+		}
 	}
 	else
 	// if the event type gui event
@@ -120,9 +211,6 @@ bool MyEventReceiver::OnEvent(const SEvent& event){
 				// we have two scroll bar one is imagescrollbar the other one is itemsscrollbar
 				if(id == IMAGE_SCROLL_BAR_ID)
 					imageScrollBarHandler(event);
-				else
-				if(id == ITEMS_SCROLL_BAR_ID)
-					itemsScrollBarHandler(event);
 				break;
 			// if gui event type is button click
 			case EGET_BUTTON_CLICKED:
@@ -144,13 +232,6 @@ bool MyEventReceiver::OnEvent(const SEvent& event){
 						return true;
 					case CHOOSE_BUTTON_ID:
 						chooseButtonHandler();
-						return true;	
-					case CHANGE_CAMERA_TYPE_BUTTON_ID:
-						changeCameraTypeButtonHandler();
-						return true;
-					// if button id is change mode button
-					case CHANGE_MODE_BUTTON_ID:
-						changeModeButtonHandler();
 						return true;
 					// if button id is add object button
 					case ADD_OBJECT_BUTTON_ID:
@@ -199,6 +280,27 @@ bool MyEventReceiver::OnEvent(const SEvent& event){
 					case SQUARE_IMAGE_ID:
 						squareImageHandler();
 						return true;
+					case ARROW_IMAGE_ID:
+						arrowImageHandler();
+						return true;
+					case CIRCLE_IMAGE_ID:
+						circleImageHandler();
+						return true;
+					case DUMBLE_IMAGE_ID:
+						dumbleImageHandler();
+						return true;
+					case MAN_IMAGE_ID:
+						manImageHandler();
+						return true;
+					case KALP_IMAGE_ID:
+						kalpImageHandler();
+						return true;
+					case KUPA_IMAGE_ID:
+						kupaImageHandler();
+						return true;
+					case KURT_IMAGE_ID:
+						kurtImageHandler();
+						return true;
 					default:
 						return false;
 				}
@@ -213,73 +315,125 @@ bool MyEventReceiver::OnEvent(const SEvent& event){
 void MyEventReceiver::rotateButtonHandler(){
 	selectMode = false;
 	drawMode = false;
-	/*
-	if(drawNodes.size() != 0){
-		for(int i = 1 ; i < drawNodes.size(); i++)
-			drawNodes.at(0)->addChild(drawNodes.at(i));
-		Object obj (device);
-		obj.node = (IAnimatedMeshSceneNode*) drawNodes.at(0);
-		objects.push_back(obj);
-		drawNodes.clear();
-	}*/
 	currentOp = rotate_id;
 }
 
 void MyEventReceiver::moveButtonHandler(){
 	selectMode = false;
 	drawMode = false;
-	/*
-	if(drawNodes.size() != 0){
-		Object *obj = new Object(device);
-		obj->node = static_cast<IAnimatedMeshSceneNode*>(drawNodes[0]);
-
-		for(int i = 1 ; i < drawNodes.size(); i++){
-			obj->node->addChild(drawNodes[i]);
-		}
-		
-		objects.push_back(*obj);
-		cout << obj->node->getChildren().getSize() << endl;
-		obj->node->getMaterial(0).EmissiveColor.set(255, 255, 255, 0);
-		drawNodes.clear();
-	}*/
 	currentOp = move_id;
 }
 
 void MyEventReceiver::clearDrawingEvent()
 {
 	for(int i = 0 ; i < drawingObj.size(); i++)
+	{
+		for(int j=0;j<intface->Listbox->getItemCount();j++)
+		{
+			wstring ws=intface->Listbox->getListItem(j);
+			std::string s=wtoa(ws);
+
+			if(s.compare(drawingObj[i].name)==0)
+			{
+				//cout<< "i "<<i<<endl<<wtoa(intface->Listbox->getListItem(i))<<endl;
+				//list<IGUIElement*> children = intface->Listbox->getChildren();
+				intface->Listbox->removeItem(j);
+				break;
+
+
+			}
+		}
 		drawingObj[i].remove();
+	}
 	drawingObj.clear();
 }
 
 void MyEventReceiver::scaleButtonHandler(){
 	selectMode = false;
 	drawMode = false;
-	/*
-	if(drawNodes.size() != 0){
-		for(int i = 1 ; i < drawNodes.size(); i++)
-			drawNodes.at(0)->addChild(drawNodes.at(i));
-		Object obj (device);
-		obj.node = (IAnimatedMeshSceneNode*) drawNodes.at(0);
-		objects.push_back(obj);
-		drawNodes.clear();
-	}*/
 	currentOp = scale_id;
 }
 
 void MyEventReceiver::chooseButtonHandler(){
 	selectMode = true;
 	drawMode = false;
-	/*
-	if(drawNodes.size() != 0){
-		for(int i = 1 ; i < drawNodes.size(); i++)
-			drawNodes.at(0)->addChild(drawNodes.at(i));
-		Object obj (device);
-		obj.node = (IAnimatedMeshSceneNode*) drawNodes.at(0);
-		objects.push_back(obj);
-		drawNodes.clear();
-	}*/
+	if(intface->Listbox->getSelected() >= 0)
+	{
+		int index =intface->Listbox->getSelected();
+		wstring ws=intface->Listbox->getListItem(index);
+		std::string s= wtoa(ws);
+		listObjectSelect(s);
+
+		intface->Listbox->setSelected(-1);
+
+	}
 	currentOp = choose_id;
+}
+
+std::string MyEventReceiver::wtoa(const std::wstring& wide)
+{
+    std::string str;
+    for(std::wstring::const_iterator it = wide.begin();
+        it != wide.end();
+        ++it)
+    {
+        str.push_back(static_cast<char>(*it));
+    }
+    return str;
+}
+
+void MyEventReceiver::listObjectSelect(std::string str){
+	vector3df commonPoint;
+	int k=0;
+
+	if(str[0] == 'd' && str[1] == 'r' && str[2] == 'a' && str[3] == 'w')
+		{
+			for(int j=0;j<drawingObj.size(); j++)
+			{
+				if(str.compare(drawingObj[j].name)==0)
+				{
+					ICameraSceneNode *camera = device->getSceneManager()->getActiveCamera();
+					camera->setTarget(drawingObj[j].getAbsolutePosition());
+					drawingObj[j].select();
+				} else
+					drawingObj[j].unSelect();
+			}
+			for(int  i=0;i<objects.size();i++)
+			{
+				for(int k=0; k<objects[i].node->getMaterialCount(); k++)
+					objects[i].node->getMaterial(k).EmissiveColor.set(255, 0, 0, 0);
+				objects[i].isSelected =false;
+			}
+			return;
+	}
+	else
+	for(int i=0; i<objects.size(); i++)
+	{
+
+
+		if(str.compare(objects[i].node->getName())==0){
+
+			for(int k=0; k<objects[i].node->getMaterialCount(); k++)
+				objects[i].node->getMaterial(k).EmissiveColor.set(255, 255, 255, 0);
+
+			ICameraSceneNode *camera = device->getSceneManager()->getActiveCamera();
+			//line3df ray(camera->getAbsolutePosition(),objects[i].node->getAbsolutePosition());
+
+			/*vector3df cameraPosition= objects[i].node->getAbsolutePosition();
+			vector3df temp(-400,0,0);*/
+			//camera->setPosition(cameraPosition+temp);
+			camera->setTarget(objects[i].node->getAbsolutePosition());
+			objects[i].isSelected =true;
+		}else{
+			for(int k=0; k<objects[i].node->getMaterialCount(); k++)
+				objects[i].node->getMaterial(k).EmissiveColor.set(255, 0, 0, 0);
+			objects[i].isSelected =false;
+		}
+
+	}
+	for(int j=0;j<drawingObj.size(); j++)
+		drawingObj[j].unSelect();
+
 }
 
 void MyEventReceiver::drawButtonHandler(){
@@ -305,11 +459,6 @@ void MyEventReceiver::changeCameraTypeButtonHandler(){
 	}
 }
 
-void MyEventReceiver::changeModeButtonHandler(){
-	/*if(drawMode) drawMode = false;
-	else drawMode = true;*/
-}
-
 // get a file browser from gui environment
 void MyEventReceiver::addObjectButtonHandler(){
 	device->getGUIEnvironment()->addFileOpenDialog(L"Please choose a file.", true, 0, -1, true);
@@ -326,24 +475,32 @@ void MyEventReceiver::helpButtonHandler(){
 		rect<s32>(100,100,1100,600),
 						false, // modal?
 						L"LED CUBE SIMULATION INFORMATIONS");
-	device->getGUIEnvironment()->addStaticText(L"---> For Change Camera Type Click C Key or ChangeCameraType Button",
+	device->getGUIEnvironment()->addStaticText(L"N tusu : Secilen islemin iptalini saglar.",
 						rect<s32>(20,50,980,80),true,false,window);
-	device->getGUIEnvironment()->addStaticText(L"--->For Change Select Mode Click S Key And Click With Mouse Left Button To Object",
+	device->getGUIEnvironment()->addStaticText(L"Ctrl+L :  butun objeleri gorunmez yapar",
 						rect<s32>(20,80,980,110),true,false,window);
-	device->getGUIEnvironment()->addStaticText(L"--->For Delete Selected Object Press D Key",
+	device->getGUIEnvironment()->addStaticText(L"C tusu : kamera modu degistirir",
 						rect<s32>(20,110,980,140),true,false,window);
-	device->getGUIEnvironment()->addStaticText(L"--->For Change Cube Visible Value Press Cntrl Key With L Key(Cntrl-L)",
+	device->getGUIEnvironment()->addStaticText(L"H tusu : Collision acip kapama",
 						rect<s32>(20,140,980,170),true,false,window);
-	device->getGUIEnvironment()->addStaticText(L"--->To Add A New Primitive Object Just Press To Primitive Object Image",
+	device->getGUIEnvironment()->addStaticText(L"Ctrl+P : cizme modunu degistirir",
 						rect<s32>(20,170,980,200),true,false,window);
-	device->getGUIEnvironment()->addStaticText(L"--->For Change Cube Visible Value Press Cntrl Key With L Key(Cntrl-L)",
+	device->getGUIEnvironment()->addStaticText(L"A  tusu : secili obje veya objelerin animasyonunu baslatir veya kapatir.",
 						rect<s32>(20,200,980,230),true,false,window);
-	device->getGUIEnvironment()->addStaticText(L"--->To Rotate,Move,Scale The Selected Objects Press Rotate,Move,Scale Buttons",
+	device->getGUIEnvironment()->addStaticText(L"Space tusu :  secili obje veya objelerin animasyon turunu degistirir.",
 						rect<s32>(20,230,980,260),true,false,window);
-	device->getGUIEnvironment()->addStaticText(L"--->To Draw In 3d Just Press ChangeMode Button Or Press (Cntrl-P) Keys",
+	device->getGUIEnvironment()->addStaticText(L"Q tusu :  sahnedeki butun DrawingObject objelerini temizler . ",
 						rect<s32>(20,260,980,290),true,false,window);
-	device->getGUIEnvironment()->addStaticText(L"--->To Add A New Object Press AddObject Button And Select .obj File In File Browser",
+	device->getGUIEnvironment()->addStaticText(L"D tusu :  secilen obje veya objeleri siler.",
 						rect<s32>(20,290,980,320),true,false,window);
+	device->getGUIEnvironment()->addStaticText(L"S tusu :  secim modunu  degistirir.",
+						rect<s32>(20,320,980,350),true,false,window);
+	device->getGUIEnvironment()->addStaticText(L"G tuþu : ekranda secili olan objeleri gruplar",
+						rect<s32>(20,350,980,380),true,false,window);
+	device->getGUIEnvironment()->addStaticText(L"Ok tusları :  kamera serbest modda iken  kameranin ileri-geri ve sol-sag hareketlerini yapar.",
+						rect<s32>(20,380,980,410),true,false,window);
+	device->getGUIEnvironment()->addStaticText(L"•	O tusu : Otomatik focus modunu degistirir.",
+						rect<s32>(20,410,980,440),true,false,window);
 }
 
 // add a cone object from media/primitives
@@ -353,6 +510,22 @@ void MyEventReceiver::coneImageHandler(){
 	Object *obj = new Object(device);
 	bool isAdded = obj->addAnObject(L"media/primitives/cone/cone.obj");
 	if(isAdded){
+		shapeIds[0]++;
+		std::string str="cone ";
+
+		stringstream ss;
+		ss<<shapeIds[0];
+		str.append(ss.str());
+
+		wstring widestr = wstring(str.begin(), str.end());
+		intface->Listbox->addItem(widestr.c_str());
+
+		char str2[64];
+		strncpy(str2, str.c_str(), sizeof(str2));
+
+		stringc strc= str2;
+		obj->node->setName(strc);
+
 		objects.push_back(*obj);
 	}else{
 
@@ -364,6 +537,23 @@ void MyEventReceiver::cubeImageHandler(){
 	Object *obj = new Object(device);
 	bool isAdded = obj->addAnObject(L"media/primitives/cube/cube.obj");
 	if(isAdded){
+		shapeIds[1]++;
+		std::string str="cube ";
+
+		stringstream ss;
+		ss<<shapeIds[1];
+		str.append(ss.str());
+
+		wstring widestr = wstring(str.begin(), str.end());
+		intface->Listbox->addItem(widestr.c_str());
+
+		char str2[64];
+		strncpy(str2, str.c_str(), sizeof(str2));
+		str2[sizeof(str2) - 1] = 0;
+
+		stringc strc= str2;
+		obj->node->setName(strc);
+
 		objects.push_back(*obj);
 	}else{
 
@@ -375,6 +565,22 @@ void MyEventReceiver::cylinderImageHandler(){
 	Object *obj = new Object(device);
 	bool isAdded = obj->addAnObject(L"media/primitives/cylinder/cylinder.obj");
 	if(isAdded){
+		shapeIds[2]++;
+		std::string str="cylinder ";
+
+		stringstream ss;
+		ss<<shapeIds[2];
+		str.append(ss.str());
+
+		wstring widestr = wstring(str.begin(), str.end());
+		intface->Listbox->addItem(widestr.c_str());
+
+		char str2[64];
+		strncpy(str2, str.c_str(), sizeof(str2));
+
+		stringc strc= str2;
+		obj->node->setName(strc);
+
 		objects.push_back(*obj);
 	}else{
 
@@ -386,6 +592,22 @@ void MyEventReceiver::pyramidImageHandler(){
 	Object *obj = new Object(device);
 	bool isAdded = obj->addAnObject(L"media/primitives/pyramid/pyramid.obj");
 	if(isAdded){
+		shapeIds[3]++;
+		std::string str="pyramid ";
+
+		stringstream ss;
+		ss<<shapeIds[3];
+		str.append(ss.str());
+
+		wstring widestr = wstring(str.begin(), str.end());
+		intface->Listbox->addItem(widestr.c_str());
+
+		char str2[64];
+		strncpy(str2, str.c_str(), sizeof(str2));
+
+		stringc strc= str2;
+		obj->node->setName(strc);
+
 		objects.push_back(*obj);
 	}else{
 
@@ -397,6 +619,22 @@ void MyEventReceiver::rectangleImageHandler(){
 	Object *obj = new Object(device);
 	bool isAdded = obj->addAnObject(L"media/primitives/rectangle/rectangle.obj");
 	if(isAdded){
+		shapeIds[4]++;
+		std::string str="rectangle ";
+
+		stringstream ss;
+		ss<<shapeIds[4];
+		str.append(ss.str());
+
+		wstring widestr = wstring(str.begin(), str.end());
+		intface->Listbox->addItem(widestr.c_str());
+
+		char str2[64];
+		strncpy(str2, str.c_str(), sizeof(str2));
+
+		stringc strc= str2;
+		obj->node->setName(strc);
+
 		objects.push_back(*obj);
 	}else{
 
@@ -408,8 +646,230 @@ void MyEventReceiver::squareImageHandler(){
 	Object *obj = new Object(device);
 	bool isAdded = obj->addAnObject(L"media/primitives/square/square.obj");
 	if(isAdded){
+		shapeIds[5]++;
+		std::string str="square ";
+
+		stringstream ss;
+		ss<<shapeIds[5];
+		str.append(ss.str());
+
+
+		wstring widestr = wstring(str.begin(), str.end());
+		intface->Listbox->addItem(widestr.c_str());
+
+
+		char str2[64];
+		strncpy(str2, str.c_str(), sizeof(str2));
+
+		stringc strc= str2;
+		obj->node->setName(strc);
+
 		objects.push_back(*obj);
 	}else{
+
+	}
+}
+
+// add a arrow object from media/primitives
+void MyEventReceiver::arrowImageHandler(){
+	Object *obj = new Object(device);
+	bool isAdded = obj->addAnObject(L"media/primitives/Çizgili_OK/ok.obj");
+	if (isAdded){
+		shapeIds[7]++;
+		std::string str="arrow ";
+
+		stringstream ss;
+		ss<<shapeIds[7];
+		str.append(ss.str());
+
+
+		wstring widestr = wstring(str.begin(), str.end());
+		intface->Listbox->addItem(widestr.c_str());
+
+
+		char str2[64];
+		strncpy(str2, str.c_str(), sizeof(str2));
+
+		stringc strc= str2;
+		obj->node->setName(strc);
+		objects.push_back(*obj);
+	}
+	else{
+
+	}
+}
+
+// add a circle object from media/primitives
+void MyEventReceiver::circleImageHandler(){
+	Object *obj = new Object(device);
+	bool isAdded = obj->addAnObject(L"media/primitives/simit/simit.obj");
+	if (isAdded){
+		shapeIds[8]++;
+		std::string str="circle ";
+
+		stringstream ss;
+		ss<<shapeIds[8];
+		str.append(ss.str());
+
+
+		wstring widestr = wstring(str.begin(), str.end());
+		intface->Listbox->addItem(widestr.c_str());
+
+
+		char str2[64];
+		strncpy(str2, str.c_str(), sizeof(str2));
+
+		stringc strc= str2;
+		obj->node->setName(strc);
+		objects.push_back(*obj);
+	}
+	else{
+
+	}
+}
+// add a dumbell object from media/primitives
+void MyEventReceiver::dumbleImageHandler(){
+	Object *obj = new Object(device);
+	bool isAdded = obj->addAnObject(L"media/primitives/dumbell/dumbell.obj");
+	if (isAdded){
+		shapeIds[9]++;
+		std::string str="dumble ";
+
+		stringstream ss;
+		ss<<shapeIds[9];
+		str.append(ss.str());
+
+
+		wstring widestr = wstring(str.begin(), str.end());
+		intface->Listbox->addItem(widestr.c_str());
+
+
+		char str2[64];
+		strncpy(str2, str.c_str(), sizeof(str2));
+
+		stringc strc= str2;
+		obj->node->setName(strc);
+		objects.push_back(*obj);
+	}
+	else{
+
+	}
+}
+
+// add a man object from media/primitives
+void MyEventReceiver::manImageHandler(){
+	Object *obj = new Object(device);
+	bool isAdded = obj->addAnObject(L"media/primitives/adam1/adam1.obj");
+	if (isAdded){
+		shapeIds[10]++;
+		std::string str="man ";
+
+		stringstream ss;
+		ss<<shapeIds[10];
+		str.append(ss.str());
+
+
+		wstring widestr = wstring(str.begin(), str.end());
+		intface->Listbox->addItem(widestr.c_str());
+
+
+		char str2[64];
+		strncpy(str2, str.c_str(), sizeof(str2));
+
+		stringc strc= str2;
+		obj->node->setName(strc);
+		objects.push_back(*obj);
+	}
+	else{
+
+	}
+}
+
+// add a kalp object from media/primitives
+void MyEventReceiver::kalpImageHandler(){
+	Object *obj = new Object(device);
+	bool isAdded = obj->addAnObject(L"media/primitives/Kalp/Heart.obj");
+	if (isAdded){
+		shapeIds[11]++;
+		std::string str="heart ";
+
+		stringstream ss;
+		ss<<shapeIds[11];
+		str.append(ss.str());
+
+
+		wstring widestr = wstring(str.begin(), str.end());
+		intface->Listbox->addItem(widestr.c_str());
+
+
+		char str2[64];
+		strncpy(str2, str.c_str(), sizeof(str2));
+
+		stringc strc= str2;
+		obj->node->setName(strc);
+		objects.push_back(*obj);
+	}
+	else{
+
+	}
+}
+
+// add a kupa object from media/primitives
+void MyEventReceiver::kupaImageHandler(){
+	Object *obj = new Object(device);
+	bool isAdded = obj->addAnObject(L"media/primitives/kupa/kupa.obj");
+	if (isAdded){
+		shapeIds[12]++;
+		std::string str="mug ";
+
+		stringstream ss;
+		ss<<shapeIds[12];
+		str.append(ss.str());
+
+
+		wstring widestr = wstring(str.begin(), str.end());
+		intface->Listbox->addItem(widestr.c_str());
+
+
+		char str2[64];
+		strncpy(str2, str.c_str(), sizeof(str2));
+
+		stringc strc= str2;
+		obj->node->setName(strc);
+		objects.push_back(*obj);
+	}
+	else{
+
+	}
+}
+
+// add a kurt object from media/primitives
+void MyEventReceiver::kurtImageHandler(){
+	Object *obj = new Object(device);
+	bool isAdded = obj->addAnObject(L"media/primitives/kurt/kurt.obj");
+	if (isAdded){
+
+		shapeIds[13]++;
+		std::string str="wolf ";
+
+		stringstream ss;
+		ss<<shapeIds[13];
+		str.append(ss.str());
+
+
+		wstring widestr = wstring(str.begin(), str.end());
+		intface->Listbox->addItem(widestr.c_str());
+
+
+		char str2[64];
+		strncpy(str2, str.c_str(), sizeof(str2));
+
+		stringc strc= str2;
+		obj->node->setName(strc);
+
+		objects.push_back(*obj);
+	}
+	else{
 
 	}
 }
@@ -430,22 +890,6 @@ void MyEventReceiver::imageScrollBarHandler(const SEvent& event){
 	}
 }
 
-// find change position from new position - old position
-// and change all position of all element in items tab
-void MyEventReceiver::itemsScrollBarHandler(const SEvent& event){
-	s32 newPos = intface->ItemsScrollbar->getPos();
-	s32 changePos = newPos - ItemsScrollBarOldPos;
-	ItemsScrollBarOldPos = newPos;
-	vector2d<int> changeVector = vector2d<s32>(0,-changePos);
-	u32 childrenSize = intface->itemsTab->getChildren().getSize();
-	list<IGUIElement*> Items = intface->itemsTab->getChildren();
-	list<IGUIElement*>::Iterator itemsIterator;
-	for(itemsIterator = Items.begin(); itemsIterator != Items.end(); ++itemsIterator){
-		if((*itemsIterator)->getID() != ITEMS_SCROLL_BAR_ID)
-			(*itemsIterator)->move(changeVector);
-	}
-}
-
 // get file path from file browser and add a new object
 void MyEventReceiver::selectedFileHandler(const SEvent& event){
 	IGUIFileOpenDialog* dialog = (IGUIFileOpenDialog*)event.GUIEvent.Caller;
@@ -462,6 +906,24 @@ void MyEventReceiver::selectedFileHandler(const SEvent& event){
 void MyEventReceiver::removeObjectHandler(int index){
 	if(index >= objects.size() || index < 0)
 		return;
+
+
+	for(int i=0;i<intface->Listbox->getItemCount();i++)
+	{
+		wstring ws=intface->Listbox->getListItem(i);
+		std::string s=wtoa(ws);
+
+		if(s.compare(objects[index].node->getName())==0)
+		{
+			//cout<< "i "<<i<<endl<<wtoa(intface->Listbox->getListItem(i))<<endl;
+			//list<IGUIElement*> children = intface->Listbox->getChildren();
+			intface->Listbox->removeItem(i);
+			break;
+
+
+		}
+	}
+
 	objects[index].removeObject();
 	objects.erase(objects.begin()+index);
 }
@@ -509,23 +971,41 @@ void MyEventReceiver::objectSelectHandler(){
 					}
 				}
 			}
-		}	
+		}
 	}
 	vector3df outCollisionPoint = vector3df(1000,1000,1000);
 	triangle3df outTriangle = triangle3df();
 	ISceneNode *outNode;
 	for(int i=0; i<drawingObj.size(); i++){
-		if(drawingObj[i].isCollisionDetach(raytrace, &outCollisionPoint, &outTriangle, outNode,colmgr))
+		if(drawingObj[i].isCollisionDetach(raytrace, &outCollisionPoint, &outTriangle, outNode,colmgr)){
+			int groupId = drawingObj[i].groupId;
 			if(drawingObj[i].isSelected){
-				drawingObj[i].unSelect();
+				if(groupId == -1){
+					drawingObj[i].unSelect();
+				}else{
+					for(int j=0; j<drawingObj.size(); j++){
+						if(groupId == drawingObj[j].groupId){
+							drawingObj[j].unSelect();
+						}
+					}
+				}
 			}else{
-				drawingObj[i].select();
+				if(groupId == -1){
+					drawingObj[i].select();
+				}else{
+					for(int j=0; j<drawingObj.size(); j++){
+						if(groupId == drawingObj[j].groupId){
+							drawingObj[j].select();
+						}
+					}
+				}
 			}
+		}
 	}
 }
 
 vector3df MyEventReceiver::setLineLength(line3df line ,float newLength){
-	
+
 	vector3df lineStart = line.start;
 	vector3df lineEnd = line.end;
 	float x = lineEnd.X-lineStart.X;
@@ -533,7 +1013,7 @@ vector3df MyEventReceiver::setLineLength(line3df line ,float newLength){
 	float z = lineEnd.Z-lineStart.Z;
 
 	float uzunluk  = core::squareroot( (lineEnd.X-lineStart.X)*(lineEnd.X-lineStart.X) + (lineEnd.Y-lineStart.Y)*(lineEnd.Y-lineStart.Y) +(lineEnd.Z-lineStart.Z)*(lineEnd.Z-lineStart.Z) );
-	
+
 	return vector3df(lineStart.X + (x*newLength)/uzunluk,lineStart.Y + (y*newLength)/uzunluk,lineStart.Z + (z*newLength)/uzunluk);
 }
 
@@ -541,13 +1021,13 @@ vector3df MyEventReceiver::setLineLength(line3df line ,float newLength){
 void MyEventReceiver::drawModeHandler(){
 	if(fpsCameraType){
 		ICameraSceneNode *camera = device->getSceneManager()->getActiveCamera();
-	
+
 		line3df ray(camera->getAbsolutePosition(),camera->getTarget());
 
-		if(otomaticFocus)		
+		//if(otomaticFocus)
 			mousePosition = setLineLength(ray,distanceToNode);
-		else
-			mousePosition = setLineLength(ray,250);
+		//else
+			//mousePosition = setLineLength(ray,250);
 		if(tempPosition==vector3df(-1000,-1000,-1000))
 			tempPosition=mousePosition;
 		ISceneNode *cube1 = device->getSceneManager()->addCubeSceneNode(6.0f);
@@ -558,14 +1038,14 @@ void MyEventReceiver::drawModeHandler(){
 		float distance= tempPosition.getDistanceFrom(mousePosition);
 
 		int cubeCount=distance/2;
-		
-		float x_ = tempPosition.X-mousePosition.X;
-		float y_ = tempPosition.Y-mousePosition.Y;
-		float z_ = tempPosition.Z-mousePosition.Z;
+
+		float x_ = -(tempPosition.X-mousePosition.X);
+		float y_ = -(tempPosition.Y-mousePosition.Y);
+		float z_ = -(tempPosition.Z-mousePosition.Z);
 
 		if(cubeCount != 0){
 			float e = 1/(double)cubeCount ;
-			
+
 			for(int i = 0 ; i < cubeCount ; i++)
 			{
 				ISceneNode *cube = device->getSceneManager()->addCubeSceneNode(6.0f);
@@ -576,14 +1056,14 @@ void MyEventReceiver::drawModeHandler(){
 		}
 	}else{
 		ICameraSceneNode *camera = device->getSceneManager()->getActiveCamera();
-	
+
 		line3df ray = device->getSceneManager()->getSceneCollisionManager()->
 			getRayFromScreenCoordinates(device->getCursorControl()->getPosition(),device->getSceneManager()->getActiveCamera());
 
-		if(otomaticFocus)		
+		//if(otomaticFocus)
 			mousePosition = setLineLength(ray,distanceToNode);
-		else
-			mousePosition = setLineLength(ray,250);
+		//else
+			//mousePosition = setLineLength(ray,250);
 
 		if(tempPosition==vector3df(-1000,-1000,-1000))
 			tempPosition=mousePosition;
@@ -595,18 +1075,18 @@ void MyEventReceiver::drawModeHandler(){
 		float distance= tempPosition.getDistanceFrom(mousePosition);
 
 		int cubeCount=distance/2;
-		
-		float x_ = tempPosition.X-mousePosition.X;
-		float y_ = tempPosition.Y-mousePosition.Y;
-		float z_ = tempPosition.Z-mousePosition.Z;
+
+		float x_ = -(tempPosition.X-mousePosition.X);
+		float y_ = -(tempPosition.Y-mousePosition.Y);
+		float z_ = -(tempPosition.Z-mousePosition.Z);
 
 		if(cubeCount != 0){
 			float e = 1/(double)cubeCount ;
-			
+
 			for(int i = 0 ; i < cubeCount ; i++)
 			{
 				ISceneNode *cube = device->getSceneManager()->addCubeSceneNode(6.0f);
-				cube->setPosition(mousePosition);
+				cube->setPosition(vector3df(tempPosition.X+x_*e*i,tempPosition.Y+y_*e*i,tempPosition.Z+z_*e*i));
 				Node obj(cube,device) ;
 				currentDraw.push_back(obj);
 			}
@@ -633,41 +1113,14 @@ void MyEventReceiver::mouseWheelEventHandler(int wheelValue)
 				if(drawingObj[i].isSelected){
 					vector3df objScale = drawingObj[i].node[0].node->getScale();
 					if(wheelValue == 1){
-						drawingObj[i].setScale(vector3df(objScale.X+0.025,objScale.Y+0.025,objScale.Z+0.025));
+						drawingObj[i].setScale(vector3df(objScale.X+0.025,objScale.Y+0.025,objScale.Z+0.025),-1);
 					}else if(!(objScale.X < 0.1 && objScale.Y < 0.1 && objScale.Z < 0.1)){
-						drawingObj[i].setScale(vector3df(objScale.X-0.025,objScale.Y-0.025,objScale.Z-0.025));
+						drawingObj[i].setScale(vector3df(objScale.X-0.025,objScale.Y-0.025,objScale.Z-0.025),+1);
 					}
 				}
 			}
 	}
 }
-
-
-vector3df MyEventReceiver::commonPointFounder()
-{
-	vector<Object> objs;
-	for(int i=0; i<objects.size(); i++)
-		if(objects.at(i).isSelected)
-			objs.push_back(objects.at(i));
-
-	int size = objs.size();
-	float x = 0.0f,y=0.0f,z=0.0f;
-	for(int i= 0 ; i < size  ; i++)
-	{
-		x += objs[i].node->getAbsolutePosition().X;
-		y += objs[i].node->getAbsolutePosition().Y;
-		z += objs[i].node->getAbsolutePosition().Z;
-	}
-	x /= size;
-	y /= size;
-	z /= size;
-	vector3df commonVector = vector3df(x,y,z);
-	return commonVector;
-}
-
-
-	
-
 
 void MyEventReceiver::mouseLeftButtonEventHandler()
 {
@@ -759,67 +1212,69 @@ void MyEventReceiver::mouseLeftButtonEventHandler()
 			}
 			break ;
 		case rotate_id:
-			/*for(int i = 0 ; i < objects.size(); i++){
-				if(objects[i].isSelected){
-					vector3df objRotate = objects[i].node->getRotation();
-					vector3df rot = vector3df(0,0,0); //get current rotation (euler)
-					if(mousePosition.X < tempPosition.X && mousePosition.Y < tempPosition.Y )
-						rot = vector3df(2,2,0);
-					if(mousePosition.X >= tempPosition.X && mousePosition.Y >= tempPosition.Y)
-						rot = vector3df(-2,-2,0);
-					if(mousePosition.X >= tempPosition.X && mousePosition.Y < tempPosition.Y)
-						rot = vector3df(-2,2,0);
-					if(mousePosition.X < tempPosition.X && mousePosition.Y >= tempPosition.Y)
-						rot = vector3df(2,-2,0);
-
-					matrix4 m;
-					matrix4 mp;
-					m.setRotationDegrees(objRotate); //set matrix to current rotation
-					mp.setRotationDegrees(rot); //set second matrix to rotation to add
-					m *= mp; //multipy them
-
-					objRotate = m.getRotationDegrees(); //get rotation vector from matrix (euler)
-
-					objects[i].node->setRotation(objRotate); //rotate node 
-					
-				}
-			}
-			tempPosition = mousePosition  ;
-			break ;	*/
 			for(int i = 0 ; i < objects.size(); i++){
 				if(objects[i].isSelected){
-					line3df ray = smgr->getSceneCollisionManager()->
-								getRayFromScreenCoordinates(device->getCursorControl()->getPosition(), smgr->getActiveCamera());
-      				vector3df nodePosition = objects[i].node->getPosition();
-      				plane3df plane(nodePosition, vector3df(0, 0, 255));
-      				vector3df mousePosition;
-
-      				if(plane.getIntersectionWithLine(ray.start, ray.getVector(), mousePosition))
-      
-      					objects[i].node->setRotation(objects[i].node->getPosition().rotationToDirection
-      						(core::vector3df(-mousePosition.X, mousePosition.Y, 255)));
-
+					if(fpsCameraType){
+						line3df ray(device->getSceneManager()->getActiveCamera()->getAbsolutePosition(),
+										device->getSceneManager()->getActiveCamera()->getTarget());
+						mousePosition = setLineLength(ray,250);
+					}
 					else
-      					objects[i].node->setRotation(objects[i].node->getPosition().rotationToDirection
-      						(core::vector3df(mousePosition.X, mousePosition.Y, 255)));
-					/*
-					line3df ray(device->getSceneManager()->getActiveCamera()->getAbsolutePosition(),
-						device->getSceneManager()->getActiveCamera()->getTarget());
+					{
+						line3df ray = colmgr->getRayFromScreenCoordinates(device->getCursorControl()->getPosition(),smgr->getActiveCamera());
+						mousePosition = setLineLength(ray,250);
+					}
 
-					vector3df from = objects[i].node->getAbsolutePosition();
-					vector3df to = setLineLength(ray,250);
+					if(tempPosition!=vector3df(-1000,-1000,-1000)){
+						if(mousePosition.X < tempPosition.X && mousePosition.Y < tempPosition.Y )
+							objects[i].node->setRotation(objects[i].node->getPosition().rotationToDirection
+								(core::vector3df(-mousePosition.Y/2, mousePosition.X/2, 0)));
+						if(mousePosition.X >= tempPosition.X && mousePosition.Y >= tempPosition.Y)
+							objects[i].node->setRotation(objects[i].node->getPosition().rotationToDirection
+								(core::vector3df(mousePosition.Y/2, -mousePosition.X/2, 0)));
+						if(mousePosition.X >= tempPosition.X && mousePosition.Y < tempPosition.Y)
+							objects[i].node->setRotation(objects[i].node->getPosition().rotationToDirection
+								(core::vector3df(mousePosition.Y/2, mousePosition.X/2, 0)));
+						if(mousePosition.X < tempPosition.X && mousePosition.Y >= tempPosition.Y)
+							objects[i].node->setRotation(objects[i].node->getPosition().rotationToDirection
+								(core::vector3df(-mousePosition.Y/2, -mousePosition.X/2, 0)));
 
-					from.normalize();
-					to.normalize();
+					}
+				}
+			}
+			for(int i  = 0 ; i < drawingObj.size() ; i++)
+			{
+				if(drawingObj[i].isSelected)
+				{
+					//ISceneNode *myNode = device->getSceneManager()->addCubeSceneNode(10.0f);
+					ISceneNode *myNode =  drawingObj[i].node[0].node;
+					myNode->setPosition(drawingObj[i].node[0].node->getAbsolutePosition());
+					for(int j  = 0 ; j < drawingObj[i].node.size() ; j++)
+						 myNode->addChild(drawingObj[i].node[j].node);
 
-					core::quaternion q;
-    				q.rotationFromTo(from, to);
 
-    				core::matrix4 m1 = q.getMatrix();
-    				core::matrix4 m2 = objects[i].node->getAbsoluteTransformation();
-    
-    				objects[i].node->setRotation((m1*m2).getRotationDegrees());		
-					*/	
+					if(fpsCameraType){
+						line3df ray(device->getSceneManager()->getActiveCamera()->getAbsolutePosition(),
+										device->getSceneManager()->getActiveCamera()->getTarget());
+						mousePosition = setLineLength(ray,250);
+					}
+					else
+					{
+						line3df ray = colmgr->getRayFromScreenCoordinates(device->getCursorControl()->getPosition(),smgr->getActiveCamera());
+						mousePosition = setLineLength(ray,250);
+					}
+					vector3df rot  = myNode->getRotation();
+					if(tempPosition!=vector3df(-1000,-1000,-1000)){
+						if(mousePosition.X < tempPosition.X && mousePosition.Y < tempPosition.Y )
+							 myNode->setRotation(vector3df(rot.X+5,0,0));
+						if(mousePosition.X >= tempPosition.X && mousePosition.Y >= tempPosition.Y)
+							 myNode->setRotation(vector3df(rot.X+5,0,0));
+						if(mousePosition.X >= tempPosition.X && mousePosition.Y < tempPosition.Y)
+							 myNode->setRotation(vector3df(rot.X+5,0,0));
+						if(mousePosition.X < tempPosition.X && mousePosition.Y >= tempPosition.Y)
+							 myNode->setRotation(vector3df(rot.X+5,0,0));
+
+					}
 				}
 			}
 			tempPosition = mousePosition  ;
@@ -830,15 +1285,30 @@ void MyEventReceiver::mouseLeftButtonEventHandler()
 			break;
 		default :
 			break ;
-
 	}
 }
 
 // make group handler
 void MyEventReceiver::makeGroupHandler(){
+	int groupId = -1;
 	for(int i=0; i<objects.size(); ++i){
 		if(objects[i].isSelected){
+			groupId = Object::groupIdCount;
 			objects[i].groupId = Object::groupIdCount;
+		}
+	}
+	std::string str="";
+
+	stringstream ss;
+	ss<<groupId;
+	str.append(ss.str());
+
+	wstring widestr = wstring(str.begin(), str.end());
+	intface->Listbox->addItem(widestr.c_str());
+
+	for(int i=0; i<drawingObj.size(); i++){
+		if(drawingObj[i].isSelected){
+			drawingObj[i].groupId = DrawingObject::groupIdCount;
 		}
 	}
 }
@@ -858,6 +1328,19 @@ void MyEventReceiver::mouseMoveHandler(){
 			distanceToNode = line.getLength();
 			isSet = true;
 			break;
+		}
+	}
+
+	for(int i=0; i<drawingObj.size(); i++){
+		for(int i=0; i<drawingObj[i].node.size(); i++){
+			bool isGet = drawingObj[i].isCollisionDetach(ray,&outCollisionPoint,&outTriangle, outNode,colmgr) ;
+			if(isGet){
+				line3df line = line3df(smgr->getActiveCamera()->getAbsolutePosition(), outCollisionPoint);
+				distanceToNode = line.getLength();
+				isSet = true;
+				break;
+			}
+
 		}
 	}
 }

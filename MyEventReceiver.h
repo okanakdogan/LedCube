@@ -8,6 +8,7 @@
 #include"DrawingObject.h"
 #include<vector>
 #include<iostream>
+#include<sstream>
 
 using namespace irr;
 using namespace core;
@@ -16,6 +17,8 @@ using namespace video;
 using namespace io;
 using namespace gui;
 using namespace std;
+
+
 
 enum Operation_t 
 {
@@ -40,7 +43,6 @@ public:
 	void drawButtonHandler();
 	void chooseButtonHandler();
 	void changeCameraTypeButtonHandler();
-	void changeModeButtonHandler();
 	void addObjectButtonHandler();
 	void mouseLeftButtonEventHandler();
 	void mouseWheelEventHandler(int wheelValue);
@@ -55,9 +57,15 @@ public:
 	void pyramidImageHandler();
 	void rectangleImageHandler();
 	void squareImageHandler();
+	void arrowImageHandler();
+	void circleImageHandler();
+	void dumbleImageHandler();
+	void manImageHandler();
+	void kalpImageHandler();
+	void kupaImageHandler();
+	void kurtImageHandler();
 
 	void imageScrollBarHandler(const SEvent& event);
-	void itemsScrollBarHandler(const SEvent& event);
 	
 	void selectedFileHandler(const SEvent& event);
 
@@ -70,9 +78,12 @@ public:
 
 	void mouseMoveHandler();
 
+	std::string wtoa(const std::wstring& wide);	
+	void listObjectSelect(std::string str);
+
 	vector<Object> objects;
 	vector<DrawingObject> drawingObj ;
-	
+	bool collisionFlag  ;
 private:
 	vector3df setLineLength(line3df newLine ,float newLength);
 	vector3df commonPointFounder();
@@ -82,7 +93,6 @@ private:
 	CubeObject *cube;			// to access all cube informations
 	vector<Object> drawNodes;
 	s32 ImageScrollBarOldPos;	// to find change position in scrollbar
-	s32 ItemsScrollBarOldPos;	// to find change position in scrollbar
 	bool fpsCameraType;			// to change camera type
 	bool selectMode;			// to change select mode
 	bool cubeVisible;			// to change cube visible
@@ -94,6 +104,7 @@ private:
 	int drawCounter;
 	float distanceToNode;
 	vector<Node> currentDraw;
+	vector<int > shapeIds;
 };
 
 #endif

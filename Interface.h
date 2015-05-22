@@ -24,19 +24,19 @@ struct Locations{
 	recti SCALE_BUTTON_LOCATION;
 	recti CHOOSE_BUTTON_LOCATION;
 	recti DRAW_BUTTON_LOCATION;
-	recti CHANGE_CAMERA_TYPE_BUTTON_LOCATION;
-	recti CHANGE_MODE_BUTTON_LOCATION;
 	recti ADD_OBJECT_BUTTON_LOCATION;
 	recti EXIT_BUTTON_LOCATION;
-	recti STAR_IMAGE_LOCATION ;
+	recti DUMBLE_IMAGE_LOCATION ;
 	recti MAN_IMAGE_LOCATION ;
 	recti ARROW_IMAGE_LOCATION ;
 	recti CIRCLE_IMAGE_LOCATION ;
+	recti KALP_IMAGE_LOCATION;
+	recti KUPA_IMAGE_LOCATION;
+	recti KURT_IMAGE_LOCATION;
 
 	recti HELP_BUTTON_LOCATION;
 
 	recti IMAGE_SCROLL_BAR_LOCATION;
-	recti ITEMS_SCROLL_BAR_LOCATION;
 };
 
 #define SCOL_BLACK     SColor(255, 0,   0,   0)
@@ -63,8 +63,6 @@ enum
 	ROTATE_BUTTON_ID = 101,
 	MOVE_BUTTON_ID, 
 	SCALE_BUTTON_ID,
-	CHANGE_CAMERA_TYPE_BUTTON_ID,
-	CHANGE_MODE_BUTTON_ID,
 	ADD_OBJECT_BUTTON_ID,
 	EXIT_BUTTON_ID,
 	HELP_BUTTON_ID,
@@ -74,12 +72,15 @@ enum
 	PYRAMID_IMAGE_ID,
 	RECTANGLE_IMAGE_ID,
 	SQUARE_IMAGE_ID,
-	STAR_IMAGE_ID,
+	DUMBLE_IMAGE_ID,
 	MAN_IMAGE_ID,
 	ARROW_IMAGE_ID,
 	CIRCLE_IMAGE_ID,
+	KALP_IMAGE_ID,
+	KUPA_IMAGE_ID,
+	KURT_IMAGE_ID,
 	IMAGE_SCROLL_BAR_ID,
-	ITEMS_SCROLL_BAR_ID,
+	ITEMS_LIST_BOX_ID,
 	DRAW_BUTTON_ID,
 	CHOOSE_BUTTON_ID
 
@@ -105,8 +106,6 @@ public:
 	IGUIButton *ScaleButton;
 	IGUIButton *DrawButton;
 	IGUIButton *ChooseButton;
-	IGUIButton *ChangeCameraTypeButton;
-	IGUIButton *ChangeModeButton;
 	IGUIButton *AddObjectButton;
 	IGUIButton *ExitButton;
 	IGUIButton *HelpButton;
@@ -120,10 +119,13 @@ public:
 	IGUIImage* manImage ;
 	IGUIImage* circleImage;
 	IGUIImage* arrowImage;
-	IGUIImage* starImage;
+	IGUIImage* dumbleImage;
+	IGUIImage* kalpImage;
+	IGUIImage* kupaImage;
+	IGUIImage* kurtImage;
 
 	IGUIScrollBar *ImageScrollbar;
-	IGUIScrollBar *ItemsScrollbar;
+	IGUIListBox    *Listbox;
 
 	Locations l;
 };

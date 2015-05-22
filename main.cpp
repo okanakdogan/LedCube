@@ -18,7 +18,6 @@
 #include <stdlib.h>
 #include <time.h>
 
-
 #define BAUDRATE 115200
 #define DELAY_TIME_US 100000
 #define RECONNECT_TIME 100000
@@ -36,27 +35,16 @@ using namespace gui;
 
 using namespace std;
 
+int DrawingObject::groupIdCount = 0;
 
-#ifdef _WIN32
-DWORD WINAPI MyThreadFunction( LPVOID lpParam )
-{
-    cout<<"Thread"<<endl;
-    threadInf *t = (threadInf*)lpParam;
-
-    while(1){
-        t->cube->checkSetCollisionObjectOpt(*(t->objs));
-    }
-    return 0;
-}
-#endif // _WIN32
-
+void updateAnimations(vector<Object> objects,vector<DrawingObject> drawingObj);
 int connect_ledcube();
 int connect_manuel_ledcube(int);
 int connect_auto_ledcube();
 int sendArrayLedCube(int portNo, unsigned char ledArray[8][8]);
 int sendArrayLedCubes(int portNo, unsigned char ledArray[8][24]);
 void show_rain(unsigned char ledArray[8][8]);
-
+unsigned char reverseChar(unsigned char c );
 
 
 int main(){
@@ -72,31 +60,28 @@ int main(){
 	Interface * intface = new Interface(device,driver);
 
 	vector<Object> objectList;
-    CubeObject *cubes[3];
+	CubeObject *cubes[3] = {0};
 
     int space=16;
     core::vector3df cubePosition(150,0,-50);
 
 	CubeObject mainCube(device->getSceneManager(),device->getVideoDriver(),cubePosition,space);
     cubePosition+=core::vector3df(space*8,0,0);
+    #if THREECUBE==1
 	CubeObject secondCube(device->getSceneManager(),device->getVideoDriver(),cubePosition,space);
     cubePosition+=core::vector3df(space*8,0,0);
 	CubeObject thirdCube(device->getSceneManager(),device->getVideoDriver(),cubePosition,space);
-
+    #endif // THREECUBE
     (cubes[0]=&mainCube)->loadData();
+    #if THREECUBE==1
     (cubes[1]=&secondCube)->loadData();
     (cubes[2]=&thirdCube)->loadData();
+    #endif // THREECUBE
 
     bool threeCube=false;
 
 	MyEventReceiver receiver(device,intface,objectList,&mainCube);
 	device->setEventReceiver(&receiver);
-    #ifdef _WIN32
-
-    //threadInf tinf(&cube,&(receiver.objects));
-    //HANDLE colThread=CreateThread(NULL,0,MyThreadFunction,&tinf,0,NULL);
-
-    #endif // _WIN32
 
 #ifdef DEVICE_ON
     #if THREECUBE==0
@@ -131,16 +116,10 @@ int main(){
         }
     #endif // THREECUBE
 
-
-	//ledArray[dikey][z ekseni] = [yatay]
-	//ledArray[0][1] = 255;
-
     SendByte(portNo,0xff);
     SendByte(portNo,0xff);
 
     Sleep(5);
-
-
 
 #endif // DEVICE_ON
 
@@ -148,47 +127,29 @@ int main(){
 	int counter = 0;
 	while(device->run())
 	{
-/*
-		stringw str = L"LED CUBE PROJECT   ";
-		str += smgr->getActiveCamera()->getAbsolutePosition().X;
-		str += "__";
-		str += smgr->getActiveCamera()->getAbsolutePosition().Y;
-		str += "__";
-		str += smgr->getActiveCamera()->getAbsolutePosition().Z;
-		str += "__&&__";
-		str += smgr->getActiveCamera()->getTarget().X;
-		str += "__";
-		str += smgr->getActiveCamera()->getTarget().Y;
-		str += "__";
-		str += smgr->getActiveCamera()->getTarget().Z;
-		device->setWindowCaption(str.c_str());
-*/
         #ifdef DEVICE_ON
 
         #if THREECUBE==0
             for (i = 0; i < 8; ++i) {
                 for (j = 0; j < 8; ++j) {
                     ledArray[i][j]= mainCube.getData().m_data[j][7-i];
-                   // cout<<LedCubeData().chartobin(mainCube.getData().m_data[i][j])<<endl;
-                    cout<<LedCubeData().chartobin(ledArray[i][j])<<endl;
-                }
-            }
-            status = sendArrayLedCube(portNo, ledArray);
-        #else/*
-            int cubeInd=0;
-            for (i = 0; i < 8; ++i) {
-                for (j = 0; j < 24; ++j) {
-                    ledArray[i][j]= cubes[cubeInd]->getData().m_data[j%8][7-i];
-                   // cout<<LedCubeData().chartobin(mainCube.getData().m_data[i][j])<<endl;
                     //cout<<LedCubeData().chartobin(ledArray[i][j])<<endl;
-                    if(j==7 || j==15)
-                        cubeInd++;
                 }
-            }
-            cubeInd=0;*/
+            }/*
+            counter++;
+            if(counter==50){
+                SendByte(portNo,0xff);
+                SendByte(portNo,0xff);
+
+                Sleep(5);
+                counter=0;
+            }*/
+
+            status = sendArrayLedCube(portNo, ledArray);
+        #else
             for (i = 0; i < 8; ++i) {
                 for (j = 0; j < 8; ++j) {
-                    ledArray[i][j]= mainCube.getData().m_data[j][7-i];
+                    ledArray[i][j]= thirdCube.getData().m_data[j][7-i];
                    // cout<<LedCubeData().chartobin(mainCube.getData().m_data[i][j])<<endl;
                     //cout<<LedCubeData().chartobin(ledArray[i][j])<<endl;
                 }
@@ -202,12 +163,23 @@ int main(){
             }
             for (i = 0; i < 8; ++i) {
                 for (j = 16; j < 24; ++j) {
-                    ledArray[i][j]= thirdCube.getData().m_data[j%8][7-i];
+                    ledArray[i][j]= mainCube.getData().m_data[j%8][7-i];
                    // cout<<LedCubeData().chartobin(mainCube.getData().m_data[i][j])<<endl;
                     //cout<<LedCubeData().chartobin(ledArray[i][j])<<endl;
                 }
-            }
+            }/*
+            counter++;
+            if(counter==50){
+                SendByte(portNo,0xff);
+                SendByte(portNo,0xff);
+
+                Sleep(5);
+                counter=0;
+            }*/
             status = sendArrayLedCubes(portNo, ledArray);
+
+
+
         #endif // THREECUBE
 
 /*
@@ -227,42 +199,32 @@ int main(){
 		}else
 			//printf("Array gönderildi %d\n", ledArray[0][0]);
         #endif // DEVICE_ON
-
-/*
-        #ifdef _WIN32
-			Sleep(80);
-		#elif __linux
-			usleep(80000);
-		#endif
-*/
-
+		updateAnimations(receiver.objects,receiver.drawingObj);
 		driver->beginScene(true, true, SCOL_GRAY);
+
         for(short i=0;i<3;i++){
-            cubes[i]->getData().changeAllto(0x00);
-            cubes[i]->loadData();
-            cubes[i]->checkSetCollisionObject(receiver.objects);
-            for(short j=0; j<receiver.drawingObj.size(); j++){
-                cubes[i]->checkSetCollision(receiver.drawingObj[j].node);
-            }
+			if(cubes[i]!=NULL){
+				cubes[i]->getData().changeAllto(0x00);
+				cubes[i]->loadData();
+				if(receiver.collisionFlag)
+				{
+					cubes[i]->checkSetCollisionObject(receiver.objects);
+					for(short j=0; j<receiver.drawingObj.size(); j++){
+						cubes[i]->checkSetCollision(receiver.drawingObj[j].node);
+					}
+	    		}
+			}
         }
 
 
 		smgr->drawAll();
-		//cout << "draw ol OKKK\n";
 		intface->guienv->drawAll();
-
-		//cout <<"size :" <<receiver.objects.size() << endl ;
 
 		driver->endScene();
 	}
-	#ifdef _WIN32
-	//TerminateThread(colThread,0);
-    //CloseHandle(colThread);
-    #endif // _WIN32
     #ifdef DEVICE_ON
         CloseComport(portNo);
     #endif // DEVICE_ON
-
 
     device->drop();
 	return 0;
@@ -406,4 +368,34 @@ int sendArrayLedCubes(int portNo, unsigned char ledArray[8][24]){
 	result = SendBuf(portNo, wr, length);
 
 	return result;
+}
+
+void updateAnimations(vector<Object> objects,vector<DrawingObject> drawingObj){
+	for(int i=0; i<objects.size(); i++){
+		if(objects[i].anim->animationMode){
+			objects[i].anim->update();
+			if(objects[i].anim->animationType < 8){
+				objects[i].node->setPosition(objects[i].node->getAbsolutePosition()+objects[i].anim->animationVector());
+			}
+		}
+	}
+	for(int i=0; i<drawingObj.size(); i++){
+		if(drawingObj[i].anim->animationMode){
+			drawingObj[i].anim->update();
+			if(drawingObj[i].anim->animationType < 8){
+				drawingObj[i].setPosition(drawingObj[i].getAbsolutePosition()+drawingObj[i].anim->animationVector());
+			}
+		}
+	}
+}
+
+unsigned char reverseChar(unsigned char c ){
+    unsigned char newc=0;
+    for(int i=0;i<7;i++){
+        newc=newc|(c&1);
+        newc=newc<<1;
+        c=c>>1;
+
+    }
+    return newc;
 }

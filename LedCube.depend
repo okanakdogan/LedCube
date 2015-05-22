@@ -1,5 +1,5 @@
 # depslib dependency file v1.0
-1431631769 source:d:\okanprojectslaptop\codeblocks\ledcube\main.cpp
+1431705197 source:d:\okanprojectslaptop\codeblocks\ledcube\main.cpp
 	<iostream>
 	<vector>
 	"irrlicht.h"
@@ -1015,7 +1015,7 @@
 	"irrlicht.h"
 	<vector>
 
-1431440352 d:\okanprojectslaptop\codeblocks\ledcube\myeventreceiver.h
+1431640008 d:\okanprojectslaptop\codeblocks\ledcube\myeventreceiver.h
 	"irrlicht.h"
 	"Interface.h"
 	"Objects.h"
@@ -1023,12 +1023,14 @@
 	"DrawingObject.h"
 	<vector>
 	<iostream>
+	<sstream>
 
-1430347983 d:\okanprojectslaptop\codeblocks\ledcube\interface.h
+1431627488 d:\okanprojectslaptop\codeblocks\ledcube\interface.h
 	"irrlicht.h"
 
-1431083404 d:\okanprojectslaptop\codeblocks\ledcube\objects.h
+1431566145 d:\okanprojectslaptop\codeblocks\ledcube\objects.h
 	"irrlicht.h"
+	"Animation.h"
 
 1429883184 source:d:\okanprojectslaptop\codeblocks\ledcube\deneme1\interface.cpp
 	"Interface.h"
@@ -1039,7 +1041,7 @@
 1429889778 source:d:\okanprojectslaptop\codeblocks\ledcube\deneme1\objects.cpp
 	"Objects.h"
 
-1431623206 d:\okanprojectslaptop\codeblocks\ledcube\ledcube.h
+1431676330 d:\okanprojectslaptop\codeblocks\ledcube\ledcube.h
 	<iostream>
 	<vector>
 	"irrlicht.h"
@@ -1075,13 +1077,13 @@
 	"irrTypes.h"
 	"IrrlichtDevice.h"
 
-1431542173 source:d:\okanprojectslaptop\codeblocks\ledcube\interface.cpp
+1431682638 source:d:\okanprojectslaptop\codeblocks\ledcube\interface.cpp
 	"Interface.h"
 
-1431540241 source:d:\okanprojectslaptop\codeblocks\ledcube\myeventreceiver.cpp
+1431682445 source:d:\okanprojectslaptop\codeblocks\ledcube\myeventreceiver.cpp
 	"MyEventReceiver.h"
 
-1431534249 source:d:\okanprojectslaptop\codeblocks\ledcube\objects.cpp
+1431573321 source:d:\okanprojectslaptop\codeblocks\ledcube\objects.cpp
 	"Objects.h"
 	<iostream>
 
@@ -1100,13 +1102,20 @@
 1430319002 source:d:\okanprojectslaptop\codeblocks\ledcube\rs232.c
 	"rs232.h"
 
-1431610928 d:\okanprojectslaptop\codeblocks\ledcube\drawingobject.h
+1431641512 d:\okanprojectslaptop\codeblocks\ledcube\drawingobject.h
 	"irrlicht.h"
 	"Node.h"
 
-1431610460 d:\okanprojectslaptop\codeblocks\ledcube\node.h
+1431436463 d:\okanprojectslaptop\codeblocks\ledcube\node.h
 	"irrlicht.h"
 
 1431541080 source:d:\okanprojectslaptop\codeblocks\ledcube\ledcube.cpp
 	"LedCube.h"
+
+1431646975 d:\okanprojectslaptop\codeblocks\ledcube\animation.h
+	"irrlicht.h"
+	<iostream>
+
+1431685483 source:d:\okanprojectslaptop\codeblocks\ledcube\animation.cpp
+	"Animation.h"
 

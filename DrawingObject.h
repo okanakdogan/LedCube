@@ -16,11 +16,15 @@ class DrawingObject{
 public :
 	DrawingObject(){
 		isSelected = false;
+		groupId = -1;
+		anim = new Animation();
 	}
 	DrawingObject(vector<Node> node_){
 		isSelected = false;
+		groupId = -1;
 		for(int i=0; i<node_.size(); i++)
 			node.push_back(node_[i]);
+		anim = new Animation();
 	}
 	void select(){
 		for(int i=0; i<node.size(); i++){
@@ -29,13 +33,13 @@ public :
 		isSelected = true;
 	}
 	void unSelect(){
-		for(u32 i=0; i<node.size(); i++){
+		for(int i=0; i<node.size(); i++){
 			node[i].unSelect();
 		}
 		isSelected = false;
 	}
 	bool isPointInside(vector3df point){
-		for(u32 i=0; i<node.size(); i++){
+		for(int i=0; i<node.size(); i++){
 			if(node[i].node->getTransformedBoundingBox().isPointInside(point))
 				return true;
 		}
@@ -43,7 +47,7 @@ public :
 	}
 	bool isCollisionDetach(line3df raytrace, vector3df *outCollisionPoint, triangle3df *outTriangle, ISceneNode *outNode,
 							ISceneCollisionManager *colmgr){
-		for(u32 i=0; i<node.size(); i++)
+		for(int i=0; i<node.size(); i++)
 			if(colmgr->getCollisionPoint(raytrace, node[i].triangleSelector, *outCollisionPoint, *outTriangle, outNode))
 				return true;
 		return false;
@@ -51,7 +55,7 @@ public :
 	void setPosition(vector3df point){
 		vector3df commonPoint = getAbsolutePosition();
 		vector3df difVec = point-commonPoint;
-		for(u32 i=0; i<node.size(); i++){
+		for(int i=0; i<node.size(); i++){
 			vector3df oldPosition = node[i].node->getAbsolutePosition();
 			vector3df newPosition = oldPosition+difVec;
 			node[i].node->setPosition(newPosition);
@@ -65,9 +69,17 @@ public :
 		commonPoint/=node.size();
 		return commonPoint;
 	}
-	void setScale(vector3df newScale){
+	void setScale(vector3df newScale, int wheelType){
 		for(int i=0; i<node.size(); i++){
 			node[i].node->setScale(newScale);
+		}
+		vector3df commonPoint = getAbsolutePosition();
+		for(int i=0; i<node.size(); i++){
+			vector3df difVec = node[i].node->getAbsolutePosition() - commonPoint;
+			if(wheelType == -1)
+				node[i].node->setPosition(node[i].node->getAbsolutePosition()+(difVec*0.02));
+			else
+				node[i].node->setPosition(node[i].node->getAbsolutePosition()-(difVec*0.02));
 		}
 	}
 	void setVisible(bool isVisible){
@@ -79,7 +91,11 @@ public :
 			node[i].node->remove();
 	}
 	vector<Node> node;
-	int isSelected ;
+	bool isSelected;
+	static int groupIdCount;
+	int groupId;
+	Animation *anim;
+	std::string name;
 };
 
 #endif

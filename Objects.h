@@ -1,6 +1,7 @@
 #ifndef OBJECTS_H
 #define OBJECTS_H
 #include"irrlicht.h"
+#include"Animation.h"
 
 using namespace irr;
 using namespace core;
@@ -26,6 +27,7 @@ public:
 	bool isSelected;
 	int groupId;
 	IrrlichtDevice *device;
+	Animation *anim;
 };
 
 #endif

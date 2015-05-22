@@ -23,7 +23,7 @@ using namespace gui;
 		}
 		Node(ISceneNode * node_, IrrlichtDevice *device_)
 		{
-			isSelected = false;
+			isSelected = false; 
 			node = node_ ;
 			triangleSelector = device_->getSceneManager()->createTriangleSelectorFromBoundingBox(node);
 			node->setTriangleSelector(triangleSelector);

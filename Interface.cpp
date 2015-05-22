@@ -9,11 +9,13 @@ Interface::Interface(IrrlichtDevice *device, IVideoDriver* driver){
 	l.PYRAMID_IMAGE_LOCATION = recti(30, value+260, 250, value+390);
 	l.RECTANGLE_IMAGE_LOCATION = recti(30, value+390, 250, value+520);
 	l.SQUARE_IMAGE_LOCATION = recti(30, value+520, 250, value+650);
-	l.STAR_IMAGE_LOCATION = recti(30, value+650, 250, value+780);
-	l.MAN_IMAGE_LOCATION = recti(30, value+780, 250, value+910);
-	l.ARROW_IMAGE_LOCATION = recti(30, value+910, 250, value+1040);
+	l.ARROW_IMAGE_LOCATION = recti(30, value + 650, 250, value + 780);
+	l.DUMBLE_IMAGE_LOCATION = recti(30, value + 780, 250, value + 910);
+	l.MAN_IMAGE_LOCATION = recti(30, value + 910, 250, value + 1040);
 	l.CIRCLE_IMAGE_LOCATION = recti(30, value+1040, 250, value+1170);
-
+	l.KALP_IMAGE_LOCATION = recti(30, value + 1170, 250, value + 1300);
+	l.KUPA_IMAGE_LOCATION = recti(30, value + 1300, 250, value + 1430);
+	l.KURT_IMAGE_LOCATION = recti(30, value + 1430, 250, value + 1560);
 
 	l.ROTATE_BUTTON_LOCATION = rect<s32>(0,0,100,50);
 	l.MOVE_BUTTON_LOCATION = rect<s32>(100,0,200,50);
@@ -21,15 +23,10 @@ Interface::Interface(IrrlichtDevice *device, IVideoDriver* driver){
 	l.DRAW_BUTTON_LOCATION = rect<s32>(300,0,400,50);
 	l.CHOOSE_BUTTON_LOCATION = rect<s32>(400,0,500,50);
 	l.HELP_BUTTON_LOCATION = rect<s32>(500,0,600,50);
-	l.CHANGE_CAMERA_TYPE_BUTTON_LOCATION = rect<s32>(0,100,300,150);
-	l.CHANGE_MODE_BUTTON_LOCATION = rect<s32>(300,100,480,150);
 	l.ADD_OBJECT_BUTTON_LOCATION = rect<s32>(690,0,850,50);
 	l.EXIT_BUTTON_LOCATION = rect<s32>(690,100,780,150);
 
-
-
 	l.IMAGE_SCROLL_BAR_LOCATION = rect<s32>(250, 0, 270, 700);
-	l.ITEMS_SCROLL_BAR_LOCATION = rect<s32>(220, 0, 240, 160);
 	/**********************/
 
 	guienv = device->getGUIEnvironment();
@@ -60,10 +57,7 @@ Interface::Interface(IrrlichtDevice *device, IVideoDriver* driver){
     itemsTab=itemsTabControl->addTab(L"ITEMS",-1);
 	itemsTab->setTextColor(SCOL_GREEN);
 
-	ItemsScrollbar = guienv->addScrollBar(false,l.ITEMS_SCROLL_BAR_LOCATION,itemsTab,ITEMS_SCROLL_BAR_ID);
-	ItemsScrollbar->setMax(100);
-	ItemsScrollbar->setPos(0);
-	itemsTab->addChild(ItemsScrollbar);
+	Listbox = guienv->addListBox(rect<s32>(0,FULLSCREEN.Height*0.75,FULLSCREEN.Width*0.174,FULLSCREEN.Height),0,ITEMS_LIST_BOX_ID,false);
 
 	for (s32 i=0; i<irr::gui::EGDC_COUNT ; ++i)
     {
@@ -78,9 +72,6 @@ Interface::Interface(IrrlichtDevice *device, IVideoDriver* driver){
 	ScaleButton = guienv->addButton(l.SCALE_BUTTON_LOCATION,menuTab,SCALE_BUTTON_ID,L"Scale",L"Scales The Selected Object");
 	ChooseButton = guienv->addButton(l.CHOOSE_BUTTON_LOCATION,menuTab,CHOOSE_BUTTON_ID,L"Choose",L"Choose The Selected Object");
 	DrawButton = guienv->addButton(l.DRAW_BUTTON_LOCATION,menuTab,DRAW_BUTTON_ID,L"Draw",L"Draw line");
-	ChangeCameraTypeButton = guienv->addButton(l.CHANGE_CAMERA_TYPE_BUTTON_LOCATION,menuTab,CHANGE_CAMERA_TYPE_BUTTON_ID,
-													L"Change Camera Type(KEY C)",	L"Change Camera Type To Free");
-	ChangeModeButton = guienv->addButton(l.CHANGE_MODE_BUTTON_LOCATION,menuTab,CHANGE_MODE_BUTTON_ID,L"Change Mode");
 	AddObjectButton = guienv->addButton(l.ADD_OBJECT_BUTTON_LOCATION,menuTab,ADD_OBJECT_BUTTON_ID,L"Add Object",L"Add A Specific Object");
 	ExitButton = guienv->addButton(l.EXIT_BUTTON_LOCATION,menuTab,EXIT_BUTTON_ID,L"Exit",L"Exit From Program");
 
@@ -147,6 +138,79 @@ Interface::Interface(IrrlichtDevice *device, IVideoDriver* driver){
 
 	squareImage->setImage(driver->getTexture("media/square.png"));
 
+	//*********************************************************************************************************************
+	arrowImage = guienv->addImage(l.ARROW_IMAGE_LOCATION, rightTab, ARROW_IMAGE_ID);
+	st = guienv->addStaticText(L"Arrow Object", rect<s32>(0, 101, 220, 130), true, true, arrowImage, -1, false);
+	st->setOverrideColor(SCOL_BLUE);
+	arrowImage->addChild(st);
+	arrowImage->setToolTipText(L"To Add Arrow Object CLICK!");
+
+
+	arrowImage->setImage(driver->getTexture("media/cizgili_ok.png"));
+
+	//*********************************************************************************************************************
+	dumbleImage = guienv->addImage(l.DUMBLE_IMAGE_LOCATION, rightTab, DUMBLE_IMAGE_ID);
+	st = guienv->addStaticText(L"Dumble Object", rect<s32>(0, 101, 220, 130), true, true, dumbleImage, -1, false);
+	st->setOverrideColor(SCOL_BLUE);
+	dumbleImage->addChild(st);
+	dumbleImage->setToolTipText(L"To Add Dumble Object CLICK!");
+
+
+	dumbleImage->setImage(driver->getTexture("media/dumbell.png"));
+
+	//*********************************************************************************************************************
+	circleImage = guienv->addImage(l.CIRCLE_IMAGE_LOCATION, rightTab, CIRCLE_IMAGE_ID);
+	st = guienv->addStaticText(L"Circle Object", rect<s32>(0, 101, 220, 130), true, true, circleImage, -1, false);
+	st->setOverrideColor(SCOL_BLUE);
+	circleImage->addChild(st);
+	circleImage->setToolTipText(L"To Add Circle Object CLICK!");
+
+
+	circleImage->setImage(driver->getTexture("media/circle.png"));
+
+
+	//*********************************************************************************************************************
+	manImage = guienv->addImage(l.MAN_IMAGE_LOCATION, rightTab, MAN_IMAGE_ID);
+	st = guienv->addStaticText(L"Man Object", rect<s32>(0, 101, 220, 130), true, true, manImage, -1, false);
+	st->setOverrideColor(SCOL_BLUE);
+	manImage->addChild(st);
+	manImage->setToolTipText(L"To Add Man Object CLICK!");
+
+
+	manImage->setImage(driver->getTexture("media/man.png"));
+
+
+	//*********************************************************************************************************************
+	kalpImage = guienv->addImage(l.KALP_IMAGE_LOCATION, rightTab, KALP_IMAGE_ID);
+	st = guienv->addStaticText(L"Kalp Object", rect<s32>(0, 101, 220, 130), true, true, kalpImage, -1, false);
+	st->setOverrideColor(SCOL_BLUE);
+	kalpImage->addChild(st);
+	kalpImage->setToolTipText(L"To Add kalp Object CLICK!");
+
+
+	kalpImage->setImage(driver->getTexture("media/kalp.png"));
+
+
+	//*********************************************************************************************************************
+	kupaImage = guienv->addImage(l.KUPA_IMAGE_LOCATION, rightTab, KUPA_IMAGE_ID);
+	st = guienv->addStaticText(L"Kupa Object", rect<s32>(0, 101, 220, 130), true, true, kupaImage, -1, false);
+	st->setOverrideColor(SCOL_BLUE);
+	kupaImage->addChild(st);
+	kupaImage->setToolTipText(L"To Add kupa Object CLICK!");
+
+
+	kupaImage->setImage(driver->getTexture("media/kupa.png"));
+
+
+	//*********************************************************************************************************************
+	kurtImage = guienv->addImage(l.KURT_IMAGE_LOCATION, rightTab, KURT_IMAGE_ID);
+	st = guienv->addStaticText(L"Kurt Object", rect<s32>(0, 101, 220, 130), true, true, kurtImage, -1, false);
+	st->setOverrideColor(SCOL_BLUE);
+	kurtImage->addChild(st);
+	kurtImage->setToolTipText(L"To Add kurt Object CLICK!");
+
+
+	kurtImage->setImage(driver->getTexture("media/kurt.png"));
 
 
 }
@@ -167,8 +231,6 @@ Interface::Interface(Interface* intfaceV){
 	ScaleButton = intfaceV->ScaleButton;
 	DrawButton = intfaceV->DrawButton;
 	ChooseButton = intfaceV->ChooseButton;
-	ChangeCameraTypeButton = intfaceV->ChangeCameraTypeButton;
-	ChangeModeButton = intfaceV->ChangeModeButton;
 	AddObjectButton = intfaceV->AddObjectButton;
 	ExitButton = intfaceV->ExitButton;
 
@@ -179,10 +241,13 @@ Interface::Interface(Interface* intfaceV){
 	rectangleImage = intfaceV->rectangleImage;
 	squareImage = intfaceV->squareImage;
 	manImage = intfaceV->manImage;
-	starImage = intfaceV->starImage;
+	dumbleImage = intfaceV->dumbleImage;
 	circleImage = intfaceV->circleImage;
 	arrowImage = intfaceV->arrowImage;
+	kalpImage = intfaceV->kalpImage;
+	kupaImage = intfaceV->kupaImage;
+	kurtImage = intfaceV->kurtImage;
 
 	ImageScrollbar = intfaceV->ImageScrollbar;
-	ItemsScrollbar = intfaceV->ItemsScrollbar;
+	Listbox = intfaceV->Listbox;
 }
